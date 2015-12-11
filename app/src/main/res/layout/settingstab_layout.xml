@@ -54,22 +54,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/brightnessTextView"
-        android:text="@string/brightnessTextView"
-        android:layout_below="@id/vibrationSwitch"/>
-
-    <SeekBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/brightnessSeekBar"
-        android:layout_below="@id/brightnessTextView" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/volumeTextView"
         android:text="@string/volumeTextView"
-        android:layout_below="@id/brightnessSeekBar"/>
+        android:layout_below="@id/mobileSwitch"/>
 
     <SeekBar
         android:layout_width="match_parent"
@@ -78,5 +65,36 @@
         android:layout_below="@id/volumeTextView"
         android:layout_alignParentEnd="true"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/createProfilButton"
+        android:text="Create profil"/>
+
+    <TextView
+        android:id="@+id/starthaltTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/starthaltEditText"
+        android:layout_alignParentEnd="true"
+        android:text="Starthaltestelle: "/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/starthaltEditText"
+        android:layout_above="@+id/zielhaltTextView" />
+
+    <TextView
+        android:id="@+id/zielhaltTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/zielhaltEditText"
+        android:text="Zielhaltestelle: "/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/zielhaltEditText" />
 
 </LinearLayout>
