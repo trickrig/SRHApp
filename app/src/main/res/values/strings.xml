@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">SRHA</string>
     <string name="action_settings">Settings</string>
+
+    <string name="wifiSwitch">WiFi On/Off</string>
+    <string name="bluetoothSwitch">Bluetooth On/Off</string>
+    <string name="gpsSwitch">GPS On/Off</string>
+    <string name="vibrationSwitch">Vibration On/Off</string>
+
+    <string name="brightnessTextView">Brightness</string>
+    <string name="volumeTextView">Volume</string>
 </resources>
