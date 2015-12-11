@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.Notification;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
@@ -23,6 +24,9 @@ public class ProfileManager {
 
     private Context activityContext;
 
+    private String prefsFile = "SRHA-prefs";
+    private String currProfilePrefsKey = "currentProfile";
+
     public ProfileManager(Context context) {
         this.activityContext = context;
 
@@ -31,18 +35,27 @@ public class ProfileManager {
     }
 
     public LinkedList<Profile> getProfiles() {
-        return profiles;
+        if (profiles.size() == 0) {
+            LinkedList<Profile> profiles = new LinkedList<Profile>();
+            profiles.add(getDefaultProfile());
+            return profiles;
+        }
+        return this.profiles;
     }
 
     public void updateProfile(Profile profile) {
-        Profile oldProfile = getProfileByName(profile);
+        if (profile.getProfileName().equals("<default>")) {
+            return;
+        }
+        Profile oldProfile = getProfileByName(profile.getProfileName());
         if (oldProfile != null) {
             // we want to replace a profile with a certain ssid
             // but we cannot do remove(profile) because the new one has another reference
             this.profiles.remove(oldProfile);
             this.profiles.add(profile);
             long updated = updateProfileInPersistance(profile);
-            Toast.makeText(this.activityContext, updated + "profiles updated", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.activityContext, updated + " profiles updated", Toast.LENGTH_SHORT).show();
+            // TODO set profile if we are currently connected to the corresponding wifi
         }
         else {
             this.profiles.add(profile);
@@ -57,8 +70,12 @@ public class ProfileManager {
         }
     }
 
-    public void getCurrentProfile() {
-        // TODO the current profile
+    public Profile getCurrentProfile() {
+        Profile profile = readCurrentProfile();
+        if (profile == null) {
+            profile = getDefaultProfile();
+        }
+        return profile;
     }
 
     public void onConnectivityChange(String ssid) {
@@ -73,6 +90,8 @@ public class ProfileManager {
         }
     }
 
+    // ********** PRIVATE *************
+
     private Profile getProfileBySsid(String ssid) {
         for (Profile p: profiles) {
             if (p.isWifiInProfile(ssid)) {
@@ -82,13 +101,35 @@ public class ProfileManager {
         return null;
     }
 
-    private Profile getProfileByName(Profile profile) {
+    private Profile getProfileByName(String name) {
         for (Profile p: this.profiles) {
-            if (profile.getProfileName().equals(p.getProfileName())) {
+            if (name.equals(p.getProfileName())) {
                 return p;
             }
         }
         return null;
+    }
+
+    private Profile readCurrentProfile() {
+        SharedPreferences settings = this.activityContext.getSharedPreferences(prefsFile, Context.MODE_PRIVATE);
+        String currentProfile = settings.getString(this.currProfilePrefsKey, null);
+
+        if (currentProfile != null) {
+            return getProfileByName(currentProfile);
+        }
+        return null;
+    }
+
+    private void writeCurrentProfile(Profile profile) {
+        SharedPreferences settings = this.activityContext.getSharedPreferences(this.prefsFile, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putString(this.currProfilePrefsKey, profile.getProfileName());
+        editor.commit();
+    }
+
+    private Profile getDefaultProfile() {
+        return new Profile("<default>", "", "", "", "", "");
     }
 
     private void showProfileSetNotification(Profile profile) {
