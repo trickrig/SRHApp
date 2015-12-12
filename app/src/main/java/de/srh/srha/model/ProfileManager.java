@@ -19,7 +19,6 @@ import de.srh.srha.database.ProfileDbHelper;
 public class ProfileManager {
 
 
-    private HashSet<String> unknownWifis;
     private LinkedList<Profile> profiles;
 
     private Context activityContext;
@@ -27,11 +26,16 @@ public class ProfileManager {
     private String prefsFile = "SRHA-prefs";
     private String currProfilePrefsKey = "currentProfile";
 
+    private Settings settings;
+
     public ProfileManager(Context context) {
         this.activityContext = context;
 
-        this.unknownWifis = new HashSet<String>();
         this.profiles = loadProfilesFromPersistance();
+        // for every profile there MUST be a setting
+        for (Profile p: this.profiles) {
+            p.settingsManager = new SettingsManager(p, this.activityContext); // loads settings
+        }
     }
 
     public LinkedList<Profile> getProfiles() {
@@ -43,7 +47,7 @@ public class ProfileManager {
         return this.profiles;
     }
 
-    public void updateProfile(Profile profile) {
+    public void updateProfile(Profile profile, Settings settings) {
         if (profile.getProfileName().equals("<default>")) {
             return;
         }
@@ -52,21 +56,26 @@ public class ProfileManager {
             // we want to replace a profile with a certain ssid
             // but we cannot do remove(profile) because the new one has another reference
             this.profiles.remove(oldProfile);
-            this.profiles.add(profile);
+
             long updated = updateProfileInPersistance(profile);
+            profile.settingsManager = new SettingsManager(profile, this.activityContext, settings); // stores settings
+            this.profiles.add(profile);
             Toast.makeText(this.activityContext, updated + " profiles updated", Toast.LENGTH_SHORT).show();
             // TODO set profile if we are currently connected to the corresponding wifi
         }
         else {
-            this.profiles.add(profile);
             storeProfileInPersistance(profile);
+            profile.settingsManager = new SettingsManager(profile, this.activityContext, settings); // stores settings
+            this.profiles.add(profile);
         }
     }
 
     public void deleteProfile(Profile profile) {
         if (this.profiles.contains(profile)) {
-            this.profiles.remove(profile);
+            profile.settingsManager.deleteSettings();
+            profile.settingsManager = null;
             deleteProfileInPersistance(profile);
+            this.profiles.remove(profile);
         }
     }
 
@@ -81,10 +90,8 @@ public class ProfileManager {
     public void onConnectivityChange(String ssid) {
         // TODO handle case that connectivity has been lost -> what is the default?
         Profile profile = getProfileBySsid(ssid);
-        if (profile == null) {
-            storeNewWifi(ssid);
-        }
-        else {
+        if (profile != null) {
+            // there is a profile that corresponds to the newly connected wifi
             profile.setProfile();
             showProfileSetNotification(profile);
         }
@@ -129,7 +136,10 @@ public class ProfileManager {
     }
 
     private Profile getDefaultProfile() {
-        return new Profile("<default>", "", "", "", "", "");
+        Profile p = new Profile("<default>", "", "", "", "", "");
+        p.settingsManager = new SettingsManager(p, this.activityContext);
+        p.settingsManager.setSettings(p.settingsManager.getDefaultSettings());
+        return p;
     }
 
     private void showProfileSetNotification(Profile profile) {
@@ -157,11 +167,6 @@ public class ProfileManager {
         myNM.notify(R.string.app_name, notification);
     }
 
-    private void storeNewWifi(String ssid) {
-        // TODO add unknown wifi to list
-        unknownWifis.add(ssid);
-    }
-
     private LinkedList<Profile> loadProfilesFromPersistance() {
         LinkedList<Profile> profiles = new LinkedList<Profile>();
 
@@ -173,8 +178,8 @@ public class ProfileManager {
 
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); ++i) {
-            profiles.add(new Profile(cursor.getString(1), cursor.getString(2), cursor.getString(3),
-                    cursor.getString(4), cursor.getString(5), cursor.getString((6))));
+            profiles.add(new Profile(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                    cursor.getString(4), cursor.getString(5)));
             cursor.moveToNext();
         }
         db.close();

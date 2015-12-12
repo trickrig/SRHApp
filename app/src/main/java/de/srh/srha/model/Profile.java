@@ -6,13 +6,13 @@ import java.util.HashSet;
 public class Profile {
 
     private String name;
-    //private HashSet<String> associatedWifis;
     private String associatedWifi;
     private String preferredDepartureId;
     private String preferredDepartureName;
     private String preferredArrivalId;
     private String preferredArrivalName;
-    //private Settings settings;
+
+    public SettingsManager settingsManager;
 
     public Profile(String name, String associatedWifi, String preferredDepartureId,
                    String preferredDepartureName, String preferredArrivalId,

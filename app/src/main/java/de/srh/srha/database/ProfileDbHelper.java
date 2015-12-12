@@ -10,11 +10,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class ProfileDbHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "test";
+    private static final String DATABASE_NAME = "srha";
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
-    public static final String KEY_ID = "id";
     public static final String KEY_NAME = "name";
     public static final String KEY_ASSOC_WIFI = "assoc_wifi";
     public static final String KEY_DEPART_ID = "departure_id";
@@ -24,8 +23,8 @@ public class ProfileDbHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_NAME = "profiles";
 
-    public static final String CREATE_TABLE_SQL = "CREATE TABLE " + TABLE_NAME + " (" + KEY_ID
-            + " INTEGER PRIMARY KEY, " + KEY_NAME + " TEXT, " + KEY_ASSOC_WIFI + " TEXT, "
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE " + TABLE_NAME + " ("
+            + KEY_NAME + " TEXT PRIMARY KEY , " + KEY_ASSOC_WIFI + " TEXT, "
             + KEY_DEPART_ID + " TEXT, " + KEY_DEPART_NAME + " TEXT, "
             + KEY_ARRIV_ID + " TEXT, " + KEY_ARRIV_NAME + " TEXT);";
 
@@ -34,7 +33,9 @@ public class ProfileDbHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(CREATE_TABLE_SQL);
+        // this is called only once
+        db.execSQL(ProfileDbHelper.CREATE_TABLE_SQL);
+        db.execSQL(SettingsDbHelper.CREATE_TABLE_SQL);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
