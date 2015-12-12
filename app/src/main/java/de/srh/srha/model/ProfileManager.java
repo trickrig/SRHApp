@@ -138,7 +138,7 @@ public class ProfileManager {
     private Profile getDefaultProfile() {
         Profile p = new Profile("<default>", "", "", "", "", "");
         p.settingsManager = new SettingsManager(p, this.activityContext);
-        p.settingsManager.setSettings(p.settingsManager.getDefaultSettings());
+        p.settingsManager.setSettings(p.settingsManager.getDefaultSettings(), false);
         return p;
     }
 

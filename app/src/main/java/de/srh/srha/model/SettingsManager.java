@@ -6,6 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 
 import de.srh.srha.database.SettingsDbHelper;
 
@@ -44,14 +48,19 @@ public class SettingsManager {
         return settings;
     }
 
-    public void setSettings(Settings settings) {
+    // TODO method is called only once -> omit store/updateSettingsInPersistance?
+    public void setSettings(Settings settings, boolean storeSettings) {
         if (this.settings == null) {
             this.settings = settings;
-            storeSettingsInPersistance();
+            if (storeSettings) {
+                storeSettingsInPersistance();
+            }
         }
         else {
             this.settings = settings;
-            updateSettingsInPersistance();
+            if (storeSettings) {
+                updateSettingsInPersistance();
+            }
         }
     }
 
@@ -62,11 +71,6 @@ public class SettingsManager {
         }
     }
 
-    // sources:
-    // http://developer.android.com/reference/android/media/AudioManager.html
-    // http://developer.android.com/guide/topics/connectivity/bluetooth.html
-    // http://developer.android.com/guide/topics/location/strategies.html
-    // http://stackoverflow.com/questions/23100298/android-turn-on-off-mobile-data-using-code
     // returns current system settings
     public Settings getDefaultSettings() {
         return new Settings(
@@ -171,10 +175,17 @@ public class SettingsManager {
     private int boolToInt(boolean val) { return ((val) ?  1 :  0); }
 
     private boolean getWifiState() {
-        // TODO to implement
-        return false;
+        WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
+        switch (wifiManager.getWifiState()) {
+            case WifiManager.WIFI_STATE_ENABLED:
+            case WifiManager.WIFI_STATE_ENABLING:
+                return true;
+            default: // should only be WIFI_STATE_DISABLED or DISABLING or UNKNOWN
+                return false;
+        }
     }
 
+    // http://developer.android.com/guide/topics/connectivity/bluetooth.html
     private boolean getBluetoothState() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         switch (bluetoothAdapter.getState()) {
@@ -186,23 +197,37 @@ public class SettingsManager {
         }
     }
 
+    // not that easy to implement, see
+    // http://stackoverflow.com/questions/2021176
     private boolean getGpsState() {
         // TODO to implement
         return false;
     }
+
+    // http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
     private boolean getMobileDataState() {
-        // TODO to implement
-        return false;
+        ConnectivityManager cm = (ConnectivityManager) this.activityContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null
+                && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE
+                && activeNetwork.isConnectedOrConnecting();
     }
 
+    // http://developer.android.com/reference/android/media/AudioManager.html
     private boolean getVibrationState() {
-        // TODO to implement
-        return false;
+        AudioManager audioManager = (AudioManager) this.activityContext.getSystemService(Context.AUDIO_SERVICE);
+        switch (audioManager.getRingerMode()) {
+            case AudioManager.RINGER_MODE_NORMAL:
+            case AudioManager.RINGER_MODE_VIBRATE:
+                return true;
+            default: // should only be RINGER_MODE_SILENT
+                return false;
+        }
     }
 
     private int getVolume() {
-        // TODO to implement
-        return 0;
+        AudioManager audioManager = (AudioManager) this.activityContext.getSystemService(Context.AUDIO_SERVICE);
+        return audioManager.getStreamVolume(AudioManager.STREAM_RING);
     }
 
 }
