@@ -41,6 +41,7 @@ public class SettingsManager {
                 this.settings = settings;
                 updateSettingsInPersistance();
             }
+            this.settings = settings;
         }
     }
 
@@ -84,7 +85,16 @@ public class SettingsManager {
     }
 
     public void applySettings() {
-        // TODO apply settings
+        setWifiState(this.settings.isWifiOn());
+        setBluetoothState(this.settings.isBluetoothOn());
+        setGpsState(this.settings.isGpsOn());
+        setMobileDataState(this.settings.isMobileDataOn());
+        setVibrationVolumeState(this.settings.isVibrateOn(), this.settings.getRingVolume());
+    }
+
+    static public int getMaxVolume(Context context) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        return audioManager.getStreamMaxVolume(AudioManager.STREAM_RING);
     }
 
     private Settings loadSettingsFromPersistance() {
@@ -185,15 +195,32 @@ public class SettingsManager {
         }
     }
 
+    private void setWifiState(boolean on) {
+        WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(on);
+    }
+
     // http://developer.android.com/guide/topics/connectivity/bluetooth.html
     private boolean getBluetoothState() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         switch (bluetoothAdapter.getState()) {
+            // consider bluetooth that is turning on as if it was turned on
+            // therefore return true, don't use isEnabled()
             case BluetoothAdapter.STATE_ON:
             case BluetoothAdapter.STATE_TURNING_ON:
                 return true;
             default: // should only be STATE_OFF pr STATE_TURNING_OFF acc. to doc
                 return false;
+        }
+    }
+
+    private void setBluetoothState(boolean on) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (on) {
+            bluetoothAdapter.enable();
+        }
+        else {
+            bluetoothAdapter.disable();
         }
     }
 
@@ -204,6 +231,10 @@ public class SettingsManager {
         return false;
     }
 
+    private void setGpsState(boolean on) {
+        // TODO to implement
+    }
+
     // http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html
     private boolean getMobileDataState() {
         ConnectivityManager cm = (ConnectivityManager) this.activityContext.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -211,6 +242,11 @@ public class SettingsManager {
         return activeNetwork != null
                 && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE
                 && activeNetwork.isConnectedOrConnecting();
+    }
+
+    // http://stackoverflow.com/questions/12535101
+    private void setMobileDataState(boolean on) {
+        // TODO to implement (seems to be hard)
     }
 
     // http://developer.android.com/reference/android/media/AudioManager.html
@@ -228,6 +264,22 @@ public class SettingsManager {
     private int getVolume() {
         AudioManager audioManager = (AudioManager) this.activityContext.getSystemService(Context.AUDIO_SERVICE);
         return audioManager.getStreamVolume(AudioManager.STREAM_RING);
+    }
+
+    private void setVibrationVolumeState(boolean vibrate, int volume) {
+        AudioManager audioManager = (AudioManager) this.activityContext.getSystemService(Context.AUDIO_SERVICE);
+        if (!vibrate) {
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+        }
+        else {
+            if (volume == 0) {
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+            }
+            else {
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                audioManager.setStreamVolume(AudioManager.STREAM_RING, volume, AudioManager.FLAG_SHOW_UI);
+            }
+        }
     }
 
 }
