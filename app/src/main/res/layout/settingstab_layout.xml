@@ -3,12 +3,6 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/settingsstring"/>
-
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -55,7 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/volumeTextView"
-        android:text="@string/volumeTextView"
+        android:text="Volume: "
         android:layout_below="@id/mobileSwitch"/>
 
     <SeekBar
@@ -63,38 +57,54 @@
         android:layout_height="wrap_content"
         android:id="@+id/volumeSeekBar"
         android:layout_below="@id/volumeTextView"
-        android:layout_alignParentEnd="true"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/createProfilButton"
-        android:text="Create profil"/>
+        android:max="100"/>
 
     <TextView
         android:id="@+id/starthaltTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/starthaltEditText"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@id/volumeSeekBar"
         android:text="Starthaltestelle: "/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/starthaltEditText"
-        android:layout_above="@+id/zielhaltTextView" />
+        android:layout_below="@id/starthaltTextView"/>
 
     <TextView
         android:id="@+id/zielhaltTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/zielhaltEditText"
+        android:layout_below="@id/starthaltEditText"
         android:text="Zielhaltestelle: "/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/zielhaltEditText" />
+        android:id="@+id/zielhaltEditText"
+        android:layout_below="@id/zielhaltTextView"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profilNameTextView"
+        android:layout_below="@id/zielhaltEditText"
+        android:text="Profilname: "/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/profilNameEditText"
+        android:layout_below="@id/profilNameTextView"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/createProfilButton"
+        android:text="Create profil"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/profilNameEditText"
+        android:onClick="createProfile"/>
 
 </LinearLayout>

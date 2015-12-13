@@ -1,8 +1,5 @@
 package de.srh.srha.tabs;
 
-/**
- * Created by hendrik on 11.12.15.
- */
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
