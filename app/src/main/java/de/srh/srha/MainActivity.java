@@ -34,20 +34,6 @@ public class MainActivity extends FragmentActivity {
 
     private FragmentTabHost mTabHost;
 
-    private Settings settings;
-    private Profile profile = new Profile(null, null, null, null, null,null);
-
-    private Switch wifiSwitch,bluetoothSwitch, gpsSwitch, mobileSwitch, vibrationSwitch;
-    private SeekBar volumeSeekBar;
-    private TextView volumeTextView;
-    private EditText preferredDeparture, preferredArrival, profilName;
-    private Spinner spinner;
-
-    private ArrayAdapter<String> adapter;
-    private List<String> list;
-
-    private ProfileManager manager;
-
     //Quelle TabSystem: https://maxalley.wordpress.com/2013/05/18/android-creating-a-tab-layout-with-fragmenttabhost-and-fragments/
     @Override
     protected void onCreate(Bundle savedInstanceState) {

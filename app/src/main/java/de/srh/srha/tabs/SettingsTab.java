@@ -1,6 +1,8 @@
 package de.srh.srha.tabs;
 
 import android.content.Context;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTabHost;
@@ -15,12 +17,14 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import de.srh.srha.MainActivity;
 import de.srh.srha.R;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
@@ -41,6 +45,7 @@ public class SettingsTab extends Fragment {
     private TextView volumeTextView;
     private EditText preferredDeparture, preferredArrival, profilName;
     private Button createProfilButton;
+    private Spinner wifiSpinner;
 
     private ArrayAdapter<String> adapter;
     private List<String> list;
@@ -77,6 +82,9 @@ public class SettingsTab extends Fragment {
 
         //detect button
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
+
+        // wifi spinner
+        wifiSpinner = (Spinner) v.findViewById(R.id.wifiSpinner);
 
         setUi();
 
@@ -213,6 +221,34 @@ public class SettingsTab extends Fragment {
         else
             mobileSwitch.setText("Mobile Data Off");
 
+        fillConfiguredNetworksSpinner();
     }
+
+    public void fillConfiguredNetworksSpinner() {
+        WifiManager wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        List<WifiConfiguration> wifis = wifiManager.getConfiguredNetworks();
+        List<String> wifiNames = new LinkedList<String>();
+        if (wifis != null) {
+            for (WifiConfiguration conf : wifis) {
+                wifiNames.add(conf.SSID);
+            }
+        }
+        else {
+            Toast.makeText(getActivity(), "Wifi must be enabled in order to read configured networks", Toast.LENGTH_SHORT).show();
+        }
+        if (this.profile.getAssociatedWifi() != null &&
+            !wifiNames.contains(this.profile.getAssociatedWifi())) {
+            wifiNames.add(this.profile.getAssociatedWifi());
+        }
+        int positionActive = wifiNames.indexOf(this.profile.getAssociatedWifi());
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, wifiNames);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        wifiSpinner.setAdapter(arrayAdapter);
+        wifiSpinner.setSelection(positionActive);
+    }
+
+
 
 }
