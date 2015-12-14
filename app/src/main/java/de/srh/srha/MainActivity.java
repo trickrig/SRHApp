@@ -3,10 +3,7 @@ package de.srh.srha;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Spinner;
@@ -54,7 +51,6 @@ public class MainActivity extends FragmentActivity {
     //Quelle TabSystem: https://maxalley.wordpress.com/2013/05/18/android-creating-a-tab-layout-with-fragmenttabhost-and-fragments/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //TODO:can i split this into SettingsTab.java and ServiceTab.java?
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
