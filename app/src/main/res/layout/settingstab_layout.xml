@@ -104,7 +104,6 @@
         android:id="@+id/createProfilButton"
         android:text="Create profil"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/profilNameEditText"
-        android:onClick="createProfile"/>
+        android:layout_below="@id/profilNameEditText" />
 
 </LinearLayout>
