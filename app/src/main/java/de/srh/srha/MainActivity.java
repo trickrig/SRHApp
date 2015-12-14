@@ -1,5 +1,8 @@
 package de.srh.srha;
 
+import android.content.Context;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTabHost;
@@ -12,6 +15,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -139,9 +143,7 @@ public class MainActivity extends FragmentActivity {
 
         //detect spinner, actually not safe
         spinner = (Spinner) findViewById(R.id.spinner);
-        list = new ArrayList<String>();
-        adapter = new ArrayAdapter<String>(this, R.layout.settingstab_layout, list);
-        spinner.setAdapter(adapter);
+        fillConfiguredNetworksSpinner();
     }
 
 
@@ -165,5 +167,30 @@ public class MainActivity extends FragmentActivity {
 //            RoutePlan rout = test.getRoute(IdArrival, IdDep);
 //            preferredDeparture.setText(rout.getDestinationTime());
         }
+    }
+
+    public void fillConfiguredNetworksSpinner() {
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        List<WifiConfiguration> wifis = wifiManager.getConfiguredNetworks();
+        List<String> wifiNames = new LinkedList<String>();
+        if (wifis != null) {
+            for (WifiConfiguration conf : wifis) {
+                wifiNames.add(conf.SSID);
+            }
+        }
+        else {
+            Toast.makeText(MainActivity.this, "Wifi must be enabled in order to read configured networks", Toast.LENGTH_SHORT).show();
+        }
+        if (this.profile.getAssociatedWifi() != null &&
+                !wifiNames.contains(this.profile.getAssociatedWifi())) {
+            wifiNames.add(this.profile.getAssociatedWifi());
+        }
+        int positionActive = wifiNames.indexOf(this.profile.getAssociatedWifi());
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MainActivity.this,
+                android.R.layout.simple_spinner_item, wifiNames);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(arrayAdapter);
+        spinner.setSelection(positionActive);
     }
 }

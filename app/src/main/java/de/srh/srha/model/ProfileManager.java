@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.widget.Toast;
 
 import java.util.HashSet;
@@ -136,7 +138,9 @@ public class ProfileManager {
     }
 
     private Profile getDefaultProfile() {
-        Profile p = new Profile("<default>", "", "", "", "", "");
+        WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        Profile p = new Profile("<default>", wifiInfo.getSSID(), "", "", "", "");
         p.settingsManager = new SettingsManager(p, this.activityContext);
         p.settingsManager.setSettings(p.settingsManager.getDefaultSettings(), false);
         return p;
