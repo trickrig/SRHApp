@@ -1,8 +1,5 @@
 package de.srh.srha.model;
 
-
-import java.util.HashSet;
-
 public class Profile {
 
     private String name;
@@ -69,8 +66,7 @@ public class Profile {
     public String getPreferredArrivalId() { return this.preferredArrivalId; }
 
     public void setProfile() {
-        // TODO implement profile change here
-        // this.settings.applySettings();
+        this.settingsManager.applySettings();
     }
 
     public boolean equals(Profile other) {
