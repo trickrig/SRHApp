@@ -5,10 +5,10 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTabHost;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -19,12 +19,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.util.LinkedList;
 import java.util.List;
 
-import de.srh.srha.MainActivity;
 import de.srh.srha.R;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
@@ -32,9 +29,7 @@ import de.srh.srha.model.Settings;
 import de.srh.srha.model.dvb;
 
 
-public class SettingsTab extends Fragment {
-
-    private FragmentTabHost mTabHost;
+public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private Settings settings;
     private Profile profile;
@@ -44,11 +39,12 @@ public class SettingsTab extends Fragment {
     private SeekBar volumeSeekBar;
     private TextView volumeTextView;
     private EditText preferredDeparture, preferredArrival, profilName;
-    private Button createProfilButton;
+    private Button createProfilButton, newProfileButton;
     private Spinner wifiSpinner;
+    private String selectedSpinnerItem;
 
-    private ArrayAdapter<String> adapter;
-    private List<String> list;
+    //TODO volume in percent
+    private float volumeValue;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,35 +56,33 @@ public class SettingsTab extends Fragment {
                              Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.settingstab_layout, container, false);
 
-        manager = new ProfileManager(getActivity());
+        manager = new ProfileManager(getActivity().getApplicationContext());
         profile = manager.getCurrentProfile();
         settings = profile.settingsManager.getSettings();
 
-        //detect all switches
         wifiSwitch = (Switch) v.findViewById(R.id.wifiSwitch);
         bluetoothSwitch = (Switch) v.findViewById(R.id.bluetoothSwitch);
         gpsSwitch = (Switch) v.findViewById(R.id.gpsSwitch);
         mobileSwitch = (Switch) v.findViewById(R.id.mobileSwitch);
         vibrationSwitch = (Switch) v.findViewById(R.id.vibrationSwitch);
 
-        //detect edit Text
         preferredArrival = (EditText) v.findViewById(R.id.zielhaltEditText);
         preferredDeparture = (EditText) v.findViewById(R.id.starthaltEditText);
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
 
-        //detect seekbar & text
         volumeSeekBar = (SeekBar) v.findViewById(R.id.volumeSeekBar);
+        //TODO How to convert max volume to progress on seekbar
+        //volumeValue =
+        //profile.settingsManager.getMaxVolume(getActivity().getApplicationContext())/100;
         volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
 
-        //detect button
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
+        newProfileButton = (Button) v.findViewById(R.id.newProfileButton);
 
-        // wifi spinner
         wifiSpinner = (Spinner) v.findViewById(R.id.wifiSpinner);
 
-        setUi();
+        setUi(profile, settings);
 
-        //give everythung a changelistener and send information to settings
         wifiSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -170,9 +164,9 @@ public class SettingsTab extends Fragment {
                 //String IdArrival = test.getIdFromName(preferredArrival.getText().toString());
                 //String IdDep = test.getIdFromName(preferredDeparture.getText().toString());
                 profile.setPreferredArrival(test.getIdFromName(preferredArrival.getText().toString()),
-                      preferredArrival.getText().toString());
+                        preferredArrival.getText().toString());
                 profile.setPreferredDeparture(test.getIdFromName(preferredDeparture.getText().toString()),
-                      preferredDeparture.getText().toString());
+                        preferredDeparture.getText().toString());
 //              preferredArrival.setText(IdArrival);
 //              preferredDeparture.setText(IdDep);
                 profile.setProfileName(profilName.getText().toString());
@@ -185,10 +179,18 @@ public class SettingsTab extends Fragment {
             }
         });
 
+        newProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO können wir schon mehrere Profile mit einer SSID haben?
+                Toast.makeText(getActivity(), "Not implemented yet", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return v;
     }
 
-    public void setUi(){
+    public void setUi(Profile profile, Settings settings){
         //init for ui
         wifiSwitch.setChecked(settings.isWifiOn());
         bluetoothSwitch.setChecked(settings.isBluetoothOn());
@@ -221,7 +223,11 @@ public class SettingsTab extends Fragment {
         else
             mobileSwitch.setText("Mobile Data Off");
 
+        volumeSeekBar.setProgress(settings.getRingVolume());
+
         fillConfiguredNetworksSpinner();
+
+        //TODO change the textViews on the starttab_layout.xml
     }
 
     public void fillConfiguredNetworksSpinner() {
@@ -249,6 +255,21 @@ public class SettingsTab extends Fragment {
         wifiSpinner.setSelection(positionActive);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        selectedSpinnerItem = parent.getItemAtPosition(pos).toString();
+        Toast.makeText(getActivity(), "loaded" + selectedSpinnerItem,
+                Toast.LENGTH_SHORT).show();
+        //TODO would be nice to have a function like select profile by ssid
+        //profile = manager.getProfile(selectedSpinnerItem);
+        //settings = profile.settingsManager.getSettings();
+        //setUi(profile, settings);
+        //change the textViews on starttab_layout.xml
+    }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
+        selectedSpinnerItem = null;
+    }
 
 }
