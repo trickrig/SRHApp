@@ -3,46 +3,53 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/profilNameTextView"
+        android:text="Profilname: "
+        android:layout_alignParentStart="true"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/profilNameEditText"
+        android:layout_below="@id/profilNameTextView"/>
+
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spinner"
-        android:layout_alignParentStart="true"/>
+        android:layout_below="@id/profilNameEditText"
+        android:id="@+id/spinner"/>
 
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/wifiSwitch"
-        android:text="@string/wifiSwitch"
-        android:layout_below="@+id/spinner"
-        android:layout_alignEnd="@+id/spinner" />
+        android:layout_below="@+id/spinner" />
 
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/bluetoothSwitch"
-        android:text="@string/bluetoothSwitch"
         android:layout_below="@+id/wifiSwitch" />
 
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/gpsSwitch"
-        android:text="@string/gpsSwitch"
         android:layout_below="@id/bluetoothSwitch"/>
 
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/mobileSwitch"
-        android:text="Mobile Data On/Off"
         android:layout_below="@id/gpsSwitch"/>
 
     <Switch
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/vibrationSwitch"
-        android:text="@string/vibrationSwitch"
         android:layout_below="@id/mobileSwitch"/>
 
     <TextView
@@ -70,8 +77,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/starthaltEditText"
-        android:layout_below="@id/starthaltTextView"
-        android:text="Wasaplatz" />
+        android:layout_below="@id/starthaltTextView"/>
 
     <TextView
         android:id="@+id/zielhaltTextView"
@@ -84,30 +90,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/zielhaltEditText"
-        android:layout_below="@id/zielhaltTextView"
-        android:text="Mickten" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/profilNameTextView"
-        android:layout_below="@id/zielhaltEditText"
-        android:text="Profilname: "/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/profilNameEditText"
-        android:layout_below="@id/profilNameTextView"
-        android:text="Test" />
+        android:layout_below="@id/zielhaltTextView"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/createProfilButton"
-        android:text="Create profil"
+        android:text="Create profile"
         android:layout_alignParentEnd="true"
-        android:layout_below="@id/profilNameEditText"
-        android:onClick="createProfile"/>
+        android:layout_below="@id/zielhaltEditText" />
 
 </LinearLayout>
