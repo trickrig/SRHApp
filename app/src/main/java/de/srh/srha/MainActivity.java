@@ -19,7 +19,9 @@ import java.util.List;
 
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
+import de.srh.srha.model.RoutePlan;
 import de.srh.srha.model.Settings;
+import de.srh.srha.model.dvb;
 import de.srh.srha.tabs.ServiceTab;
 import de.srh.srha.tabs.SettingsTab;
 import de.srh.srha.tabs.StartTab;
@@ -151,10 +153,17 @@ public class MainActivity extends FragmentActivity {
             //TODO: switches haben funktion setTextOn setTextOff, automatisieren
             //TODO: text der edit felder automatisch löschen
             //where do i get id from, null has to be getId() Function
-            profile.setPreferredArrival(null, preferredArrival.getText().toString());
-            profile.setPreferredDeparture(null, preferredDeparture.getText().toString());
+            dvb test = new dvb();
+            String IdArrival = test.getIdFromName(preferredArrival.getText().toString());
+            String IdDep = test.getIdFromName(preferredDeparture.getText().toString());
+            profile.setPreferredArrival(IdArrival, preferredArrival.getText().toString());
+            profile.setPreferredDeparture(IdDep, preferredDeparture.getText().toString());
+//            preferredArrival.setText(IdArrival);
+//            preferredDeparture.setText(IdDep);
             profile.setProfileName(profilName.getText().toString());
             manager.updateProfile(profile, settings);
+//            RoutePlan rout = test.getRoute(IdArrival, IdDep);
+//            preferredDeparture.setText(rout.getDestinationTime());
         }
     }
 }
