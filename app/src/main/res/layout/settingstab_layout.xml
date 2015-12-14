@@ -70,8 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/starthaltEditText"
-        android:layout_below="@id/starthaltTextView"
-        android:text="Wasaplatz" />
+        android:layout_below="@id/starthaltTextView"/>
 
     <TextView
         android:id="@+id/zielhaltTextView"
@@ -84,8 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/zielhaltEditText"
-        android:layout_below="@id/zielhaltTextView"
-        android:text="Mickten" />
+        android:layout_below="@id/zielhaltTextView"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -98,8 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/profilNameEditText"
-        android:layout_below="@id/profilNameTextView"
-        android:text="Test" />
+        android:layout_below="@id/profilNameTextView"/>
 
     <Button
         android:layout_width="wrap_content"
