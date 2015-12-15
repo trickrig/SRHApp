@@ -1,3 +1,10 @@
+/**
+ * QUellen für das Vorschlagssystem
+ * http://stackoverflow.com/questions/17857334/android-autocompletetextview-only-works-when-backspacing
+ * http://stackoverflow.com/questions/19858843/how-to-dynamically-add-suggestions-to-autocompletetextview-with-preserving-chara
+ * LiveHttpHeader
+ * https://www.dvb.de/apps/pointfinder/index?query=dor
+ */
 package de.srh.srha.tabs;
 
 import android.content.Context;
@@ -63,9 +70,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-    private static final String[] COUNTRIES = new String[] {
-            "Belgium", "France", "Italy", "Germany", "Spain"
-    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

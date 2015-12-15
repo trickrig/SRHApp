@@ -22,6 +22,8 @@ import java.util.Set;
 
 import de.srh.srha.R;
 import de.srh.srha.communication.DownloadFileFromUrl;
+import de.srh.srha.model.Profile;
+import de.srh.srha.model.ProfileManager;
 
 public class ServiceTab extends Fragment {
     static DisplayMetrics display;
@@ -42,7 +44,9 @@ public class ServiceTab extends Fragment {
         display = this.getResources().getDisplayMetrics();
         dvb = (GridLayout)v.findViewById(R.id.abfahrtGrid);
         download = new Downloader();
-        refreshStations("Wasaplatz");
+        ProfileManager manager = new ProfileManager(getActivity().getApplicationContext());
+        Profile profile = manager.getCurrentProfile();
+        refreshStations(profile.getPreferredArrivalName());
         return v;
 
     }
