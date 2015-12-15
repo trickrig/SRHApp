@@ -16,10 +16,13 @@ import java.util.Set;
  * Created by fettpet on 13.12.15.
  */
 public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
-    private String Source;
+    protected String Source;
+    protected boolean finished;
     public String getSource(){
         return Source;
     }
+
+
 
 
     /**
@@ -27,7 +30,9 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
      * */
     @Override
     protected void onPreExecute() {
+        Log.i("LOG", "Download Pre");
         super.onPreExecute();
+        finished = false;
     }
 
     /**
@@ -41,7 +46,9 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
         try {
             URL url = new URL(f_url[0]);
             URLConnection conection = url.openConnection();
+            Log.i("LOG", "Download " + f_url[0]);
             conection.connect();
+            Log.i("LOG", "Download COnnected" + f_url[0]);
             // this will be useful so that you can show a tipical 0-100%
             // progress bar
             int lenghtOfFile = conection.getContentLength();
@@ -56,12 +63,13 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
                 Source = Source.concat(new String(data).trim());
                 data = new byte[1024];
             }
-
-
+            Log.i("LOG", "Readout " + f_url[0]);
+            finished = true;
 
         } catch (Exception e) {
-            Log.e("Error: ", e.getMessage());
+            Log.i("Error: ", e.getMessage());
         }
+        
 
         return null;
     }
@@ -72,12 +80,16 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
         // setting progress percentage
     }
 
+    public boolean isFinished(){
+        return finished;
+    }
     /**
      * After completing background task Dismiss the progress dialog
      * **/
     @Override
     protected void onPostExecute(String file_url) {
-
+        Log.i("LOG", "Download finished");
+        finished = true;
     }
 
 }

@@ -103,51 +103,46 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"/>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/starthaltEditText"
-        android:layout_below="@id/volumeSeekBar"
-        android:layout_toRightOf="@id/starthaltTextView"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"/>
-
     <TextView
         android:id="@+id/zielhaltTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/starthaltEditText"
         android:text="Zielhaltestelle: "
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/zielhaltEditText"
-        android:layout_below="@id/starthaltEditText"
-        android:layout_toRightOf="@id/starthaltTextView"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"/>
+        android:layout_marginLeft="20dp"
+        android:layout_below="@+id/starthaltEditText"
+        android:layout_alignEnd="@+id/starthaltTextView" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/createProfilButton"
         android:text="Create profile"
-        android:layout_below="@id/zielhaltEditText"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginLeft="20dp"
+        android:layout_alignParentBottom="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/newProfileButton"
         android:text="New Profile"
-        android:layout_below="@id/zielhaltEditText"
-        android:layout_toLeftOf="@id/createProfilButton"
-        android:layout_marginTop="10dp" />
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@+id/createProfilButton" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/zielhaltEditText"
+        android:layout_below="@+id/starthaltEditText"
+        android:layout_alignStart="@+id/newProfileButton"
+        android:layout_alignEnd="@+id/volumeSeekBar" />
+
+    <AutoCompleteTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/starthaltEditText"
+        android:layout_alignTop="@+id/starthaltTextView"
+        android:layout_alignEnd="@+id/volumeSeekBar"
+        android:layout_toEndOf="@+id/createProfilButton" />
 
 </RelativeLayout>
