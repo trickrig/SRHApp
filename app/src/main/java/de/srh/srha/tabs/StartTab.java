@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import de.srh.srha.R;
 import de.srh.srha.model.Profile;
@@ -45,12 +46,11 @@ public class StartTab extends Fragment {
 
     public void setUi(Profile profile, Settings settings){
 
-        currentProfileTextView.setText(profile.getProfileName());
-        currentWifiTextView.setText(profile.getAssociatedWifi());
+        if (profile.getProfileName().equals("<default>"))
+            Toast.makeText(getActivity(), "There is no profile set!", Toast.LENGTH_SHORT).show();
 
+        currentProfileTextView.setText("Current Profile: " + profile.getProfileName());
+        currentWifiTextView.setText("Connected to: " + profile.getAssociatedWifi());
     }
-
-
-    //TODO change the textViews on the starttab_layout.xml
 
 }

@@ -104,6 +104,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         newProfileButton = (Button) v.findViewById(R.id.newProfileButton);
 
         wifiSpinner = (Spinner) v.findViewById(R.id.wifiSpinner);
+        wifiSpinner.setOnItemSelectedListener(this);
 
         setUi(profile, settings);
 
@@ -352,13 +353,19 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         selectedSpinnerItem = parent.getItemAtPosition(pos).toString();
-        Toast.makeText(getActivity(), "loaded" + selectedSpinnerItem,
-                Toast.LENGTH_SHORT).show();
+
         //TODO would be nice to have a function like select profile by ssid
-        //profile = manager.getProfile(selectedSpinnerItem);
+        //profile = manager.getProfileBySsid(selectedSpinnerItem);
         //settings = profile.settingsManager.getSettings();
         //setUi(profile, settings);
-        //change the textViews on starttab_layout.xml
+
+        Toast.makeText(getActivity(), "loaded " + selectedSpinnerItem + " from spinner",
+                Toast.LENGTH_SHORT).show();
+
+        //just for debug purpose
+        Toast.makeText(getActivity(), "akt profil vom manager: " + manager.getCurrentProfile().getProfileName(),
+                Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "akt profil vom profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
