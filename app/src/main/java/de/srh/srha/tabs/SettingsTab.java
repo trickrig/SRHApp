@@ -55,10 +55,10 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     private Filter filterDeparture, filterArrival;
     private Switch wifiSwitch,bluetoothSwitch, gpsSwitch, mobileSwitch, vibrationSwitch;
     private SeekBar volumeSeekBar;
-    private TextView volumeTextView;
+    private TextView volumeTextView, profilNameTextView;
     private EditText  profilName;
     private AutoCompleteTextView preferredDeparture, preferredArrival;
-    private Button createProfilButton, newProfileButton;
+    private Button createProfilButton;
     private Spinner wifiSpinner;
     private String selectedSpinnerItem;
     private ArrayAdapter<String> adapterDeparture, adapterArrival;
@@ -99,12 +99,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         volumeSeekBar.setMax(maxVolume);
 
         volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
+        profilNameTextView = (TextView) v.findViewById(R.id.profilNameTextView);
 
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
-        newProfileButton = (Button) v.findViewById(R.id.newProfileButton);
 
         wifiSpinner = (Spinner) v.findViewById(R.id.wifiSpinner);
         wifiSpinner.setOnItemSelectedListener(this);
+
+        fillConfiguredNetworksSpinner();
 
         setUi(profile, settings);
 
@@ -266,19 +268,12 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                         preferredDeparture.getText().toString());
 
                 profile.setProfileName(profilName.getText().toString());
+                profile.addWifi(selectedSpinnerItem);
                 manager.updateProfile(profile, settings);
 
                 preferredArrival.setText("");
                 preferredDeparture.setText("");
                 profilName.setText("");
-            }
-        });
-
-        newProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO können wir schon mehrere Profile mit einer SSID haben?
-                Toast.makeText(getActivity(), "Not implemented yet", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -322,7 +317,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
 
         volumeSeekBar.setProgress(settings.getRingVolume());
 
-        fillConfiguredNetworksSpinner();
+        profilNameTextView.setText("Profil = " + profile.getProfileName());
     }
 
     public void fillConfiguredNetworksSpinner() {
@@ -353,19 +348,19 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         selectedSpinnerItem = parent.getItemAtPosition(pos).toString();
+        Toast.makeText(getActivity(), selectedSpinnerItem,Toast.LENGTH_SHORT).show();
 
-        //TODO would be nice to have a function like select profile by ssid
-        //profile = manager.getProfileBySsid(selectedSpinnerItem);
-        //settings = profile.settingsManager.getSettings();
-        //setUi(profile, settings);
+        Profile p = manager.getProfileBySsid(selectedSpinnerItem);
+        if (p == null){
+            Toast.makeText(getActivity(), "profile not known", Toast.LENGTH_SHORT).show();
+            profile = manager.getCurrentProfile();
+        } else {
+            Toast.makeText(getActivity(), "profile known", Toast.LENGTH_SHORT).show();
+            profile = p;
+        }
+        settings = profile.settingsManager.getSettings();
 
-        Toast.makeText(getActivity(), "loaded " + selectedSpinnerItem + " from spinner",
-                Toast.LENGTH_SHORT).show();
-
-        //just for debug purpose
-        Toast.makeText(getActivity(), "manager: " + manager.getCurrentProfile().getProfileName(),
-                Toast.LENGTH_SHORT).show();
-        Toast.makeText(getActivity(), "profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
+        setUi(profile, settings);
     }
 
     @Override
