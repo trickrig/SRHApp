@@ -62,6 +62,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     private Spinner wifiSpinner;
     private String selectedSpinnerItem;
     private ArrayAdapter<String> adapterDeparture, adapterArrival;
+    private int maxVolume;
 
     //TODO volume in percent
     private float volumeValue;
@@ -94,9 +95,9 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
 
         volumeSeekBar = (SeekBar) v.findViewById(R.id.volumeSeekBar);
-        //TODO How to convert max volume to progress on seekbar
-        //volumeValue =
-        //profile.settingsManager.getMaxVolume(getActivity().getApplicationContext())/100;
+        maxVolume = profile.settingsManager.getMaxVolume(getActivity().getApplicationContext());
+        volumeSeekBar.setMax(maxVolume);
+
         volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
 
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
@@ -240,7 +241,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
                 volumeTextView.setText("Volume: " + progress);
-                //possible int: 0 - 100;
+                //possible int: 0 - max from function;
                 settings.setRingVolume(progress);
             }
 
@@ -321,8 +322,6 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         volumeSeekBar.setProgress(settings.getRingVolume());
 
         fillConfiguredNetworksSpinner();
-
-        //TODO change the textViews on the starttab_layout.xml
     }
 
     public void fillConfiguredNetworksSpinner() {

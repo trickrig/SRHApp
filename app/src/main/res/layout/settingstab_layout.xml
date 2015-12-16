@@ -89,7 +89,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/volumeSeekBar"
         android:layout_below="@id/volumeTextView"
-        android:max="100"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
