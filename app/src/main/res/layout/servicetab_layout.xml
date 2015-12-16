@@ -8,4 +8,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/servicestring"/>
 
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="460dp"
+        android:rowCount="11"
+        android:columnCount="3"
+        android:id="@+id/abfahrtGrid"></GridLayout>
+
 </LinearLayout>

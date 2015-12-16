@@ -3,4 +3,22 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Current Profile"
+        android:textSize="30dp"
+        android:id="@+id/currentProfileTextView"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connected WiFi"
+        android:textSize="30dp"
+        android:id="@+id/connectedWifiTextView"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"/>
+
 </LinearLayout>

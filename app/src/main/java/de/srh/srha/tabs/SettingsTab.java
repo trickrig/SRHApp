@@ -1,15 +1,28 @@
+/**
+ * QUellen für das Vorschlagssystem
+ * http://stackoverflow.com/questions/17857334/android-autocompletetextview-only-works-when-backspacing
+ * http://stackoverflow.com/questions/19858843/how-to-dynamically-add-suggestions-to-autocompletetextview-with-preserving-chara
+ * LiveHttpHeader
+ * https://www.dvb.de/apps/pointfinder/index?query=dor
+ */
 package de.srh.srha.tabs;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTabHost;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -19,36 +32,40 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
+import org.json.JSONArray;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-import de.srh.srha.MainActivity;
 import de.srh.srha.R;
+import de.srh.srha.communication.DownloadFileFromUrl;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
 import de.srh.srha.model.Settings;
 import de.srh.srha.model.dvb;
+import android.widget.Filter;
 
-
-public class SettingsTab extends Fragment {
-
-    private FragmentTabHost mTabHost;
+public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private Settings settings;
     private Profile profile;
     private ProfileManager manager;
-
+    private Filter filterDeparture, filterArrival;
     private Switch wifiSwitch,bluetoothSwitch, gpsSwitch, mobileSwitch, vibrationSwitch;
     private SeekBar volumeSeekBar;
     private TextView volumeTextView;
-    private EditText preferredDeparture, preferredArrival, profilName;
-    private Button createProfilButton;
+    private EditText  profilName;
+    private AutoCompleteTextView preferredDeparture, preferredArrival;
+    private Button createProfilButton, newProfileButton;
     private Spinner wifiSpinner;
+    private String selectedSpinnerItem;
+    private ArrayAdapter<String> adapterDeparture, adapterArrival;
+    private int maxVolume;
 
-    private ArrayAdapter<String> adapter;
-    private List<String> list;
+    //TODO volume in percent
+    private float volumeValue;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,37 +75,39 @@ public class SettingsTab extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.i("LOG", "OnCreate SettingsTab");
         final View v = inflater.inflate(R.layout.settingstab_layout, container, false);
 
-        manager = new ProfileManager(getActivity());
+        manager = new ProfileManager(getActivity().getApplicationContext());
         profile = manager.getCurrentProfile();
         settings = profile.settingsManager.getSettings();
 
-        //detect all switches
         wifiSwitch = (Switch) v.findViewById(R.id.wifiSwitch);
         bluetoothSwitch = (Switch) v.findViewById(R.id.bluetoothSwitch);
         gpsSwitch = (Switch) v.findViewById(R.id.gpsSwitch);
         mobileSwitch = (Switch) v.findViewById(R.id.mobileSwitch);
         vibrationSwitch = (Switch) v.findViewById(R.id.vibrationSwitch);
 
-        //detect edit Text
-        preferredArrival = (EditText) v.findViewById(R.id.zielhaltEditText);
-        preferredDeparture = (EditText) v.findViewById(R.id.starthaltEditText);
+        preferredArrival = (AutoCompleteTextView) v.findViewById(R.id.starthaltEditText);
+        preferredDeparture = (AutoCompleteTextView) v.findViewById(R.id.zielhaltEditText);
+        preferredArrival.setThreshold(3);
+        preferredDeparture.setThreshold(3);
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
 
-        //detect seekbar & text
         volumeSeekBar = (SeekBar) v.findViewById(R.id.volumeSeekBar);
+        maxVolume = profile.settingsManager.getMaxVolume(getActivity().getApplicationContext());
+        volumeSeekBar.setMax(maxVolume);
+
         volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
 
-        //detect button
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
+        newProfileButton = (Button) v.findViewById(R.id.newProfileButton);
 
-        // wifi spinner
         wifiSpinner = (Spinner) v.findViewById(R.id.wifiSpinner);
+        wifiSpinner.setOnItemSelectedListener(this);
 
-        setUi();
+        setUi(profile, settings);
 
-        //give everythung a changelistener and send information to settings
         wifiSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -97,6 +116,79 @@ public class SettingsTab extends Fragment {
                     wifiSwitch.setText("WiFi On");
                 else
                     wifiSwitch.setText("WiFi Off");
+            }
+        });
+// FIlter
+        filterDeparture = new Filter() {
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                Log.i("LOG",
+                        "Filter Departure:" + constraint + " thread: " + Thread.currentThread());
+                if (constraint != null) {
+                    Log.i("LOg", "doing a search FIlter Departure..");
+                    new AdapterUpdaterTaskDeparture().execute();
+                }
+                return null;
+            }
+        };
+
+        filterArrival = new Filter() {
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+            }
+
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                Log.i("LOG",
+                        "Filter Arival:" + constraint + " thread: " + Thread.currentThread());
+                if (constraint != null) {
+                    Log.i("LOG", "doing a search Filter Arrival");
+                    new AdapterUpdaterTaskArrival().execute();
+                }
+                return null;
+            }
+        };
+
+        adapterDeparture = new ArrayAdapter<String>(preferredDeparture.getContext(),
+                android.R.layout.simple_dropdown_item_1line) {
+            public android.widget.Filter getFilter() {
+                Log.i("LOG", "Return Filter Departure");
+                return filterDeparture;
+            }
+        };
+
+        adapterArrival = new ArrayAdapter<String>(preferredArrival.getContext(),
+                android.R.layout.simple_dropdown_item_1line) {
+            public android.widget.Filter getFilter() {
+                Log.i("LOG", "Return Filter Arrival");
+                return filterArrival;
+            }
+        };
+
+        preferredArrival.setAdapter(adapterArrival);
+        preferredDeparture.setAdapter(adapterDeparture);
+        adapterArrival.setNotifyOnChange(false);
+        adapterDeparture.setNotifyOnChange(false);
+
+        preferredDeparture.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                preferredDeparture.showDropDown();
+                return false;
+            }
+        });
+
+        preferredArrival.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                preferredArrival.showDropDown();
+                return false;
             }
         });
 
@@ -150,7 +242,7 @@ public class SettingsTab extends Fragment {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
                 volumeTextView.setText("Volume: " + progress);
-                //possible int: 0 - 100;
+                //possible int: 0 - max from function;
                 settings.setRingVolume(progress);
             }
 
@@ -167,28 +259,35 @@ public class SettingsTab extends Fragment {
             @Override
             public void onClick(View v) {
                 dvb test = new dvb();
-                //String IdArrival = test.getIdFromName(preferredArrival.getText().toString());
-                //String IdDep = test.getIdFromName(preferredDeparture.getText().toString());
+
                 profile.setPreferredArrival(test.getIdFromName(preferredArrival.getText().toString()),
-                      preferredArrival.getText().toString());
+                        preferredArrival.getText().toString());
                 profile.setPreferredDeparture(test.getIdFromName(preferredDeparture.getText().toString()),
-                      preferredDeparture.getText().toString());
-//              preferredArrival.setText(IdArrival);
-//              preferredDeparture.setText(IdDep);
+                        preferredDeparture.getText().toString());
+
                 profile.setProfileName(profilName.getText().toString());
                 manager.updateProfile(profile, settings);
-//              RoutePlan rout = test.getRoute(IdArrival, IdDep);
-//              preferredDeparture.setText(rout.getDestinationTime());
+
                 preferredArrival.setText("");
                 preferredDeparture.setText("");
                 profilName.setText("");
             }
         });
 
+        newProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO können wir schon mehrere Profile mit einer SSID haben?
+                Toast.makeText(getActivity(), "Not implemented yet", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return v;
     }
 
-    public void setUi(){
+
+
+    public void setUi(Profile profile, Settings settings){
         //init for ui
         wifiSwitch.setChecked(settings.isWifiOn());
         bluetoothSwitch.setChecked(settings.isBluetoothOn());
@@ -221,6 +320,8 @@ public class SettingsTab extends Fragment {
         else
             mobileSwitch.setText("Mobile Data Off");
 
+        volumeSeekBar.setProgress(settings.getRingVolume());
+
         fillConfiguredNetworksSpinner();
     }
 
@@ -249,6 +350,144 @@ public class SettingsTab extends Fragment {
         wifiSpinner.setSelection(positionActive);
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        selectedSpinnerItem = parent.getItemAtPosition(pos).toString();
+
+        //TODO would be nice to have a function like select profile by ssid
+        //profile = manager.getProfileBySsid(selectedSpinnerItem);
+        //settings = profile.settingsManager.getSettings();
+        //setUi(profile, settings);
+
+        Toast.makeText(getActivity(), "loaded " + selectedSpinnerItem + " from spinner",
+                Toast.LENGTH_SHORT).show();
+
+        //just for debug purpose
+        Toast.makeText(getActivity(), "manager: " + manager.getCurrentProfile().getProfileName(),
+                Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
+        selectedSpinnerItem = null;
+    }
+
+    /*************************************************************************************
+     * Helper Class for download
+     **************************************************************************************/
+    class Downloader extends DownloadFileFromUrl{
+
+        /**
+         * After completing background task Dismiss the progress dialog
+         * **/
+        @Override
+        protected void onPostExecute(String file_url) {
+
+        }
+    }
+
+    /**************************************************************************************
+     * Helper Class for Update
+     **************************************************************************************/
 
 
+    public class AdapterUpdaterTaskDeparture extends AsyncTask<String, String, String> {
+        private Downloader downloader = new Downloader();
+        private String hst;
+        @Override
+        protected void onPreExecute() {
+            Log.i("LOG", "Pre Execute Apapter Departure");
+            super.onPreExecute();
+            String buffer = preferredDeparture.getText().toString();
+            if(buffer.length() >= 3) {
+                downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+            }else {
+                cancel(true);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... hst) {
+            Log.i("LOG", "AdapterUpdaterTaskDeparture DoInBackGround");
+            while(!downloader.isFinished()){
+
+            }
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String aVoid) {
+            Log.i("LOG", "onPostExecute");
+
+            String Source = downloader.getSource();
+            if(Source.length() < 5){
+                Source = "Unbekannt";
+            } else {
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(0, Source.indexOf("|"));
+            }
+
+
+            adapterDeparture.clear();
+            adapterDeparture.add(Source);
+
+            adapterDeparture.notifyDataSetChanged();
+            preferredDeparture.showDropDown();
+
+            super.onPostExecute(aVoid);
+        }
+    }
+
+
+    public class AdapterUpdaterTaskArrival extends AsyncTask<String, String, String> {
+        private Downloader downloader = new Downloader();
+        @Override
+        protected void onPreExecute() {
+            Log.i("LOG", "Pre Execute Apapter Arrival");
+            super.onPreExecute();
+            String buffer = preferredArrival.getText().toString();
+            if(buffer.length() >= 3) {
+                downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+            }else {
+                cancel(true);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... hst) {
+            Log.i("LOG", "In Background Adapter Arrival");
+            while(!downloader.isFinished()){
+
+            }
+            Log.i("LOG", "Finished Download");
+            return "";
+        }
+
+        @Override
+        protected void onPostExecute(String aVoid) {
+            Log.i("LOG", "Arrival Post execute");
+
+            String Source = downloader.getSource();
+            if(Source.length() < 5){
+                Source = "Unbekannt";
+            }else {
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(0, Source.indexOf("|"));
+            }
+
+
+            adapterArrival.clear();
+            adapterArrival.add(Source);
+
+            adapterArrival.notifyDataSetChanged();
+            preferredArrival.showDropDown();
+
+            super.onPostExecute(aVoid);
+        }
+    }
 }
