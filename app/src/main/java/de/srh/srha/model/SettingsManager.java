@@ -24,9 +24,9 @@ public class SettingsManager {
         this.profile = profile;
         this.activityContext = context;
         this.settings = null;
-        if (!this.profile.getProfileName().equals("<default>")) {
-            this.settings = loadSettingsFromPersistance();
-        }
+        //if (!this.profile.getProfileName().equals("<default>")) {
+        this.settings = loadSettingsFromPersistance();
+        //}
     }
 
     public SettingsManager(Profile profile, Context context, Settings settings) {

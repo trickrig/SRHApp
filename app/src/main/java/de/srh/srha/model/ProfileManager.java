@@ -1,22 +1,26 @@
 package de.srh.srha.model;
 
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.SystemClock;
 import android.widget.Toast;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 
 import de.srh.srha.R;
 import de.srh.srha.database.ProfileDbHelper;
+import de.srh.srha.receivers.WifiExpirator;
 
 public class ProfileManager {
 
@@ -25,19 +29,16 @@ public class ProfileManager {
 
     private Context activityContext;
 
-    private String prefsFile = "SRHA-prefs";
-    private String currProfilePrefsKey = "currentProfile";
-
-    private Settings settings;
+    public static final String prefsFile = "SRHA-prefs";
+    public static final String currProfilePrefsKey = "currentProfile";
+    public static final String defaultProfileName = "<default>";
+    public static int wifiExpirationTimeSeconds = 30;
+    public static final String timerName = "wifiExpirationTimer";
 
     public ProfileManager(Context context) {
         this.activityContext = context;
 
         this.profiles = loadProfilesFromPersistance();
-        // for every profile there MUST be a setting
-        for (Profile p: this.profiles) {
-            p.settingsManager = new SettingsManager(p, this.activityContext); // loads settings
-        }
     }
 
     public LinkedList<Profile> getProfiles() {
@@ -50,7 +51,7 @@ public class ProfileManager {
     }
 
     public void updateProfile(Profile profile, Settings settings) {
-        if (profile.getProfileName().equals("<default>")) {
+        if (profile.getProfileName().equals(ProfileManager.defaultProfileName)) {
             return;
         }
         Profile oldProfile = getProfileByName(profile.getProfileName());
@@ -62,8 +63,9 @@ public class ProfileManager {
             long updated = updateProfileInPersistance(profile);
             profile.settingsManager = new SettingsManager(profile, this.activityContext, settings); // stores settings
             this.profiles.add(profile);
-            Toast.makeText(this.activityContext, updated + " profiles updated", Toast.LENGTH_SHORT).show();
-            // TODO set profile if we are currently connected to the corresponding wifi
+            //Toast.makeText(this.activityContext, updated + " profiles updated", Toast.LENGTH_SHORT).show();
+
+            onConnectivityChange(profile.getAssociatedWifi());
         }
         else {
             storeProfileInPersistance(profile);
@@ -90,16 +92,41 @@ public class ProfileManager {
     }
 
     public void onConnectivityChange(String ssid) {
-        // TODO handle case that connectivity has been lost -> what is the default?
         Profile profile = getProfileBySsid(ssid);
         if (profile != null) {
             // there is a profile that corresponds to the newly connected wifi
+            if (readCurrentProfile() == null) {
+                // no profile set -> store current value so that we can reset later in case
+                Profile resetProfile = getDefaultProfile();
+                storeProfileInPersistance(resetProfile);
+                resetProfile.settingsManager = new SettingsManager(resetProfile, this.activityContext,
+                        resetProfile.settingsManager.getSettings()); // stores settings
+            }
             profile.setProfile();
+            writeCurrentProfile(profile);
             showProfileSetNotification(profile);
+            killWifiExpirator();
         }
     }
 
-    // ********** PRIVATE *************
+    public void onDisconnectivityChange() {
+        // if there is a profile set
+        if (readCurrentProfile() != null) {
+            // start async task to reset it in 30 min
+            startWifiExpirator();
+        }
+    }
+
+    public void wifiExpires() {
+        Profile resetProfile = loadDefaultProfileFromPersistance();
+        if (resetProfile != null) {
+            deleteCurrentProfile();
+            deleteProfileInPersistance(resetProfile);
+            resetProfile.setProfile();
+            Toast.makeText(ProfileManager.this.activityContext,
+                    "SRHA: profile expired (no wi-fi connectivity)", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public Profile getProfileBySsid(String ssid) {
         for (Profile p: profiles) {
@@ -108,6 +135,25 @@ public class ProfileManager {
             }
         }
         return null;
+    }
+
+    // ********** PRIVATE *************
+
+    public void startWifiExpirator() {
+        AlarmManager alarmMgr = (AlarmManager) this.activityContext.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this.activityContext, WifiExpirator.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this.activityContext, 0, intent, 0);
+
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() + ProfileManager.wifiExpirationTimeSeconds * 1000, alarmIntent);
+    }
+
+    private void killWifiExpirator() {
+        AlarmManager alarmMgr = (AlarmManager) this.activityContext.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this.activityContext, WifiExpirator.class);
+        PendingIntent alarmIntent = PendingIntent.getBroadcast(this.activityContext, 0, intent, 0);
+
+        alarmMgr.cancel(alarmIntent);
     }
 
     private Profile getProfileByName(String name) {
@@ -137,10 +183,18 @@ public class ProfileManager {
         editor.commit();
     }
 
+    private void deleteCurrentProfile() {
+        SharedPreferences settings = this.activityContext.getSharedPreferences(this.prefsFile, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.remove(ProfileManager.currProfilePrefsKey);
+        editor.commit();
+    }
+
     private Profile getDefaultProfile() {
         WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        Profile p = new Profile("<default>", wifiInfo.getSSID(), "", "", "", "");
+        Profile p = new Profile(ProfileManager.defaultProfileName, wifiInfo.getSSID(), "", "", "", "");
         p.settingsManager = new SettingsManager(p, this.activityContext);
         p.settingsManager.setSettings(p.settingsManager.getDefaultSettings(), false);
         return p;
@@ -177,8 +231,11 @@ public class ProfileManager {
         ProfileDbHelper dbHelper = new ProfileDbHelper(this.activityContext);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        String where = ProfileDbHelper.KEY_NAME + " != ?";
+        String[] args = { ProfileManager.defaultProfileName };
+
         // get all profiles => get all entries from the profiles table, therefore everything is null
-        Cursor cursor = db.query(ProfileDbHelper.TABLE_NAME, null, null, null, null, null, null);
+        Cursor cursor = db.query(ProfileDbHelper.TABLE_NAME, null, where, args, null, null, null);
 
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); ++i) {
@@ -188,7 +245,35 @@ public class ProfileManager {
         }
         db.close();
 
+        // for every profile there MUST be a setting
+        for (Profile p: profiles) {
+            p.settingsManager = new SettingsManager(p, this.activityContext); // loads settings
+        }
+
         return profiles;
+    }
+
+    private Profile loadDefaultProfileFromPersistance() {
+        Profile profile = null;
+
+        ProfileDbHelper dbHelper = new ProfileDbHelper(this.activityContext);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String where = ProfileDbHelper.KEY_NAME + " = ?";
+        String[] args = { ProfileManager.defaultProfileName };
+
+        // get all profiles => get all entries from the profiles table, therefore everything is null
+        Cursor cursor = db.query(ProfileDbHelper.TABLE_NAME, null, where, args, null, null, null);
+
+        if (cursor.getCount() == 1) {
+            cursor.moveToFirst();
+            profile = new Profile(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3),
+                    cursor.getString(4), cursor.getString(5));
+            profile.settingsManager = new SettingsManager(profile, this.activityContext);
+        }
+        db.close();
+
+        return profile;
     }
 
     // assumes that profile is going to be updated in the class, does persistance only!
