@@ -421,10 +421,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             Log.i("LOG", "onPostExecute");
 
             String Source = downloader.getSource();
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(0, Source.indexOf("|"));
+            if(Source.length() < 5){
+                Source = "Unbekannt";
+            } else {
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(0, Source.indexOf("|"));
+            }
 
 
             adapterDeparture.clear();
@@ -467,10 +471,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             Log.i("LOG", "Arrival Post execute");
 
             String Source = downloader.getSource();
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(Source.indexOf("|")+1);
-            Source = Source.substring(0, Source.indexOf("|"));
+            if(Source.length() < 5){
+                Source = "Unbekannt";
+            }else {
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(Source.indexOf("|") + 1);
+                Source = Source.substring(0, Source.indexOf("|"));
+            }
 
 
             adapterArrival.clear();

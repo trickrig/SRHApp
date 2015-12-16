@@ -46,7 +46,7 @@ public class ServiceTab extends Fragment {
         ProfileManager manager = new ProfileManager(getActivity().getApplicationContext());
         Profile profile = manager.getCurrentProfile();
         refreshStations(profile.getPreferredArrivalName());
-        tv.setText("Abfahrsmonitor: " + profile.getPreferredArrivalName());
+        tv.setText("Abfahrsmonitor: " + profile.getPreferredDepartureName());
         return v;
 
     }
