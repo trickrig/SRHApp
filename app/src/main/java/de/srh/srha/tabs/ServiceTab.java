@@ -39,7 +39,6 @@ public class ServiceTab extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.servicetab_layout, container, false);
         TextView tv = (TextView) v.findViewById(R.id.servicestring);
-        tv.setText("Service");
 
         display = this.getResources().getDisplayMetrics();
         dvb = (GridLayout)v.findViewById(R.id.abfahrtGrid);
@@ -47,6 +46,7 @@ public class ServiceTab extends Fragment {
         ProfileManager manager = new ProfileManager(getActivity().getApplicationContext());
         Profile profile = manager.getCurrentProfile();
         refreshStations(profile.getPreferredArrivalName());
+        tv.setText("Abfahrsmonitor: " + profile.getPreferredArrivalName());
         return v;
 
     }

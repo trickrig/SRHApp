@@ -363,9 +363,9 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                 Toast.LENGTH_SHORT).show();
 
         //just for debug purpose
-        Toast.makeText(getActivity(), "akt profil vom manager: " + manager.getCurrentProfile().getProfileName(),
+        Toast.makeText(getActivity(), "manager: " + manager.getCurrentProfile().getProfileName(),
                 Toast.LENGTH_SHORT).show();
-        Toast.makeText(getActivity(), "akt profil vom profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
     }
 
     @Override
