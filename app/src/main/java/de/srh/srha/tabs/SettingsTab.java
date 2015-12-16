@@ -88,8 +88,8 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         mobileSwitch = (Switch) v.findViewById(R.id.mobileSwitch);
         vibrationSwitch = (Switch) v.findViewById(R.id.vibrationSwitch);
 
-        preferredArrival = (AutoCompleteTextView) v.findViewById(R.id.starthaltEditText);
-        preferredDeparture = (AutoCompleteTextView) v.findViewById(R.id.zielhaltEditText);
+        preferredArrival = (AutoCompleteTextView) v.findViewById(R.id.zielhaltEditText);
+        preferredDeparture = (AutoCompleteTextView) v.findViewById(R.id.starthaltEditText);
         preferredArrival.setThreshold(3);
         preferredDeparture.setThreshold(3);
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
