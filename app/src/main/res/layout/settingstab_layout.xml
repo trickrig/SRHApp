@@ -120,20 +120,12 @@
         android:layout_marginLeft="20dp"
         android:layout_alignParentBottom="true" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/newProfileButton"
-        android:text="New Profile"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@+id/createProfilButton" />
-
     <AutoCompleteTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/zielhaltEditText"
         android:layout_below="@+id/starthaltEditText"
-        android:layout_alignStart="@+id/newProfileButton"
+        android:layout_alignStart="@+id/createProfilButton"
         android:layout_alignEnd="@+id/volumeSeekBar" />
 
     <AutoCompleteTextView
