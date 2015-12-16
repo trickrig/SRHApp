@@ -101,7 +101,7 @@ public class ProfileManager {
 
     // ********** PRIVATE *************
 
-    private Profile getProfileBySsid(String ssid) {
+    public Profile getProfileBySsid(String ssid) {
         for (Profile p: profiles) {
             if (p.isWifiInProfile(ssid)) {
                 return p;
