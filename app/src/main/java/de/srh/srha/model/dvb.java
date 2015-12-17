@@ -1,6 +1,7 @@
 package de.srh.srha.model;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -11,6 +12,7 @@ import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import de.srh.srha.communication.AsyncTaskPool;
 import de.srh.srha.communication.DownloadFileFromUrl;
 
 /***
@@ -28,7 +30,7 @@ public class dvb {
 	 * @return Die ID
 	 */
 	 public String getIdFromName(String Stationname){
-        String Source = getSource("https://www.dvb.de/apps/pointfinder/index?query=" + Stationname);
+        String Source = getSource("https://www.dvb.de/apps/pointfinder/index?query=" + Stationname.replace(" ", "+"));
 
         if(Source.length() > 2)
 		     return Source.substring(2, Source.indexOf("|"));
@@ -148,52 +150,18 @@ public class dvb {
 
     private String getSource(String URL){
 		Log.i("DVB", "StartDownloa d" + URL);
+
         Downloader down = new Downloader();
 		Log.i("DVB", "Downloader create " + URL);
-        down.execute(URL);
+
+		down.execute(URL);
 		Log.i("DVB", "Downloader started " + URL);
 
 		Log.i("DVB", "Finished Download" + URL);
         return down.getSource();
     }
 
-    class Downloader {
-		private String Source;
-		public void execute(String URL){
-			Log.i("LOG", "in DoInBackground DownloadFileFromUrl");
-			Source = "";
-			int count;
-			try {
-				URL url = new URL(URL.replace(" ", "+"));
-				URLConnection conection = url.openConnection();
-				Log.i("LOG", "Download " + URL);
-				conection.connect();
-				Log.i("LOG", "Download COnnected" + URL);
-				// this will be useful so that you can show a tipical 0-100%
-				// progress bar
-				int lenghtOfFile = conection.getContentLength();
-				Log.i("LOG", "Download Size " + Integer.toString(lenghtOfFile));
-				// download the file
-				InputStream input = new BufferedInputStream(url.openStream(),
-						8192);
-				byte[] data = new byte[1024];
-				long total = 0;
-				while ((count = input.read(data)) != -1) {
-					total += count;
-					// writing data to file
-					Source = Source.concat(new String(data).trim());
-					data = new byte[1024];
-				}
-				Log.i("LOG", "Readout " + URL);
+    class Downloader extends DownloadFileFromUrl{
 
-			} catch (Exception e) {
-				Log.i("Error: ", e.getMessage());
-			}
-
-		}
-
-		public java.lang.String getSource() {
-			return Source;
-		}
 	}
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.srh.srha.R;
+import de.srh.srha.communication.AsyncTaskPool;
 import de.srh.srha.communication.DownloadFileFromUrl;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
@@ -133,7 +134,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                         "Filter Departure:" + constraint + " thread: " + Thread.currentThread());
                 if (constraint != null) {
                     Log.i("LOG", "doing a search FIlter Departure..");
-                    new AdapterUpdaterTaskDeparture().execute();
+                    AsyncTaskPool.execute(new AdapterUpdaterTaskDeparture());
                 }
                 return null;
             }
@@ -151,7 +152,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                         "Filter Arival:" + constraint + " thread: " + Thread.currentThread());
                 if (constraint != null) {
                     Log.i("LOG", "doing a search Filter Arrival");
-                    new AdapterUpdaterTaskArrival().execute();
+                    AsyncTaskPool.execute(new AdapterUpdaterTaskArrival());
                 }
                 return null;
             }
@@ -262,9 +263,10 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             @Override
             public void onClick(View v) {
                 dvb test = new dvb();
-
+                Log.i("DVB", "Load ID for " + preferredArrival.getText().toString());
                 profile.setPreferredArrival(test.getIdFromName(preferredArrival.getText().toString()),
                         preferredArrival.getText().toString());
+                Log.i("DVB", "Load ID for " + preferredArrival.getText().toString());
                 profile.setPreferredDeparture(test.getIdFromName(preferredDeparture.getText().toString()),
                         preferredDeparture.getText().toString());
 
@@ -399,6 +401,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             String buffer = preferredDeparture.getText().toString();
             if(buffer.length() >= 3) {
                 if(downloader.isFinished() || downloader.getStatus() == AsyncTask.Status.PENDING){
+
                         downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
                 } else {
                     downloader.cancel(true);

@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.srh.srha.R;
+import de.srh.srha.communication.AsyncTaskPool;
 import de.srh.srha.communication.DownloadFileFromUrl;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
@@ -56,8 +57,11 @@ public class ServiceTab extends Fragment {
 
 
         routeLoader = new dvb();
-        loader = new LoadRoute();
-        loader.execute("");
+        AsyncTaskPool.execute(new LoadRoute());
+        startHaltestelle = (TextView) v.findViewById(R.id.textStart);
+        zielHaltestelle = (TextView) v.findViewById(R.id.textZiel);
+        startHaltestelle.setText(profile.getPreferredArrivalName());
+        zielHaltestelle.setText(profile.getPreferredDepartureName());
         grid = (GridLayout) v.findViewById(R.id.gridVerb);
         display = this.getResources().getDisplayMetrics();
         return v;

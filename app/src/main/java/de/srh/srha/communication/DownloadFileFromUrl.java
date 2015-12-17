@@ -19,10 +19,17 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
     protected String Source;
     protected boolean finished;
     public String getSource(){
+
+        waitUntilFinished();
         return Source;
     }
 
 
+    public void waitUntilFinished(){
+        while(!finished && !isCancelled()){
+
+        }
+    }
 
 
     /**
