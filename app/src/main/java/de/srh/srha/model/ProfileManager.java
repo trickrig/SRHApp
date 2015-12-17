@@ -201,7 +201,7 @@ public class ProfileManager {
     private Profile getDefaultProfile() {
         WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        Profile p = new Profile(ProfileManager.defaultProfileName, wifiInfo.getSSID(), "33000312", "Zellescher Weg", "33000112", "Zoo");
+        Profile p = new Profile(ProfileManager.defaultProfileName, wifiInfo.getSSID(), "", "", "", "");
         p.settingsManager = new SettingsManager(p, this.activityContext);
         p.settingsManager.setSettings(p.settingsManager.getDefaultSettings(), false);
         return p;
