@@ -230,6 +230,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         vibrationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                int temp = 0;
                 settings.setVibrateOn(isChecked);
                 //TODO: if checked, volume seekbar invisible
                 if (settings.isVibrateOn())
@@ -317,7 +318,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
 
         volumeSeekBar.setProgress(settings.getRingVolume());
 
-        profilNameTextView.setText("Profil = " + profile.getProfileName());
+        profilName.setText(profile.getProfileName(), TextView.BufferType.EDITABLE);
     }
 
     public void fillConfiguredNetworksSpinner() {
@@ -348,15 +349,16 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         selectedSpinnerItem = parent.getItemAtPosition(pos).toString();
-        Toast.makeText(getActivity(), selectedSpinnerItem,Toast.LENGTH_SHORT).show();
-
         Profile p = manager.getProfileBySsid(selectedSpinnerItem);
         if (p == null){
-            Toast.makeText(getActivity(), "profile not known", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "No Profile for " + selectedSpinnerItem, Toast.LENGTH_SHORT).show();
             profile = manager.getCurrentProfile();
+            createProfilButton.setText("Create Profile");
+
         } else {
-            Toast.makeText(getActivity(), "profile known", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Loaded Profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
             profile = p;
+            createProfilButton.setText("Update Profile");
         }
         settings = profile.settingsManager.getSettings();
 

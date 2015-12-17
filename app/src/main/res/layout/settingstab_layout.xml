@@ -3,43 +3,43 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/wifiSpinner"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_alignParentStart="true"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/profilNameTextView"
         android:text="Profilname: "
-        android:layout_alignParentStart="true"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginLeft="20dp"
+        android:layout_below="@+id/wifiSpinner"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/profilNameEditText"
-        android:layout_toRightOf="@id/profilNameTextView"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"/>
-
-    <Spinner
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/profilNameEditText"
-        android:id="@+id/wifiSpinner"
-        android:layout_marginTop="10dp"
+        android:layout_below="@id/profilNameTextView"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/wifiSwitch"
-        android:layout_below="@+id/wifiSpinner"
+        android:layout_below="@+id/profilNameEditText"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bluetoothSwitch"
         android:layout_below="@+id/wifiSwitch"
@@ -48,7 +48,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/gpsSwitch"
         android:layout_below="@id/bluetoothSwitch"
@@ -57,18 +57,20 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/mobileSwitch"
-        android:layout_below="@id/gpsSwitch"
+        android:layout_toRightOf="@id/wifiSwitch"
+        android:layout_below="@id/profilNameEditText"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/vibrationSwitch"
+        android:layout_toRightOf="@id/bluetoothSwitch"
         android:layout_below="@id/mobileSwitch"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
@@ -79,7 +81,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/volumeTextView"
         android:text="Volume: "
-        android:layout_below="@id/vibrationSwitch"
+        android:layout_below="@id/gpsSwitch"
         android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"/>
@@ -102,38 +104,37 @@
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"/>
 
+    <AutoCompleteTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/starthaltEditText"
+        android:layout_below="@+id/starthaltTextView"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
+
     <TextView
         android:id="@+id/zielhaltTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Zielhaltestelle: "
         android:layout_marginLeft="20dp"
-        android:layout_below="@+id/starthaltEditText"
-        android:layout_alignEnd="@+id/starthaltTextView" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/createProfilButton"
-        android:text="Create profile"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_alignParentBottom="true" />
+        android:layout_below="@+id/starthaltEditText" />
 
     <AutoCompleteTextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/zielhaltEditText"
-        android:layout_below="@+id/starthaltEditText"
-        android:layout_alignStart="@+id/createProfilButton"
-        android:layout_alignEnd="@+id/volumeSeekBar" />
+        android:layout_below="@+id/zielhaltTextView"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"/>
 
-    <AutoCompleteTextView
+    <Button
+        android:layout_below="@+id/zielhaltEditText"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/starthaltEditText"
-        android:layout_alignTop="@+id/starthaltTextView"
-        android:layout_alignEnd="@+id/volumeSeekBar"
-        android:layout_toEndOf="@+id/createProfilButton" />
+        android:layout_height="30dp"
+        android:id="@+id/createProfilButton"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
