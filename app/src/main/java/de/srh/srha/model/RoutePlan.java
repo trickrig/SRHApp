@@ -1,4 +1,6 @@
 package de.srh.srha.model;
+import android.util.Log;
+
 import java.util.*;
 
 
@@ -38,7 +40,25 @@ public class RoutePlan {
 	public RouteStation getStation(int index){
 		return this.Route.get(index);
 	}
-	
+
+	public int getStationCount(){
+		return Route.size();
+	}
+
+	public RouteConnection[] getConnections(){
+		Log.i("Route", this.toString());
+		RouteConnection[] res = new RouteConnection[Route.size()-1];
+		for(int i=1; i<Route.size(); ++i){
+			String StartHalteStelle = Route.get(i-1).getNameStation().replace("Dresden", "");
+			String ZielHalteStelle = Route.get(i).getNameStation().replace("Dresden", "");
+			String StartZeit = Route.get(i-1).getGoOnTime();
+			String getLinie = Route.get(i-1).getGoOnTram();
+			RouteConnection buffer = new RouteConnection(StartHalteStelle, ZielHalteStelle, StartZeit, getLinie);
+			res[i-1] = buffer;
+		}
+		return res;
+	}
+
 	public String toString(){
 		String result = new String();
 		for(int i=0; i < Route.size(); ++i){

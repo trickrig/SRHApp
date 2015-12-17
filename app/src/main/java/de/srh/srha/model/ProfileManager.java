@@ -24,7 +24,7 @@ import de.srh.srha.database.ProfileDbHelper;
 import de.srh.srha.receivers.WifiExpirator;
 
 public class ProfileManager {
-
+    
     private LinkedList<Profile> profiles;
 
     private Context activityContext;

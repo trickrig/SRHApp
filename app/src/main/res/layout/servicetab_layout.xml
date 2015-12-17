@@ -10,9 +10,9 @@
 
     <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="460dp"
-        android:rowCount="11"
-        android:columnCount="3"
-        android:id="@+id/abfahrtGrid"></GridLayout>
+        android:layout_height="match_parent"
+        android:rowCount="5"
+        android:columnCount="4"
+        android:id="@+id/gridVerb"></GridLayout>
 
 </LinearLayout>

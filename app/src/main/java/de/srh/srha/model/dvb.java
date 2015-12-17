@@ -11,6 +11,8 @@ import java.net.URLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
+import de.srh.srha.communication.DownloadFileFromUrl;
+
 /***
  *  This file
  *
@@ -39,10 +41,11 @@ public class dvb {
 
     public RoutePlan getRoute(String StartID, String FinishID){
         String Source = "";
-        Log.w("URLS", "https://m.dvb.de/de/verbindungsauskunft/verbindungen.do?startid=" + StartID + "&zielid=" + FinishID);
-        Source =getSource("https://m.dvb.de/de/verbindungsauskunft/verbindungen.do?startid=" + StartID + "&zielid=" + FinishID );
+        Log.i("RoutePlan", "https://m.dvb.de/de/verbindungsauskunft/verbindungen.do?startid=" + StartID + "&zielid=" + FinishID);
+        Source =getSource("https://m.dvb.de/de/verbindungsauskunft/verbindungen.do?startid=" + StartID + "&zielid=" + FinishID);
+        Log.i("RoutePlan", "Founded Plan: ");
         String Url = getFirstUrlForConection(Source);
-        Log.w("URLS", Url);
+        Log.i("RoutePlan", "Founded Plan: " + Url);
         Source = getSource("https://m.dvb.de" + Url);
         return getRoutePlan(Source);
     }
@@ -60,7 +63,7 @@ public class dvb {
 		buffer = buffer.substring(buffer.indexOf("id=\"verbindungen\""));
 		buffer = buffer.substring(buffer.indexOf("rel=\"external\""));
 		buffer = buffer.substring(buffer.indexOf("href"));
-		buffer = buffer.substring(buffer.indexOf("\"")+1, buffer.indexOf("\">"));
+		buffer = buffer.substring(buffer.indexOf("\"") + 1, buffer.indexOf("\">"));
 		
 		return buffer;
 	}
@@ -100,12 +103,12 @@ public class dvb {
 			
 		}
 		
-		Source = cutString(Source , "class=\"end");
+		Source = cutString(Source, "class=\"end");
 		String Ankunftszeit = getSubstring(Source, "<strong>", "</strong>").substring(2).trim();
 		Source = cutString(Source, "</strong>");
 		Source = Source.substring(1);
 		String Ziel = getSubstring(Source, "<strong>", "</strong>").trim();
-		plan.addStation(new RouteStation(Ziel, Ankunftszeit, "", "", ""));
+		plan.addStation(new RouteStation(Ziel, "", Ankunftszeit, "", ""));
 		return plan;
 	}
 
@@ -143,86 +146,54 @@ public class dvb {
 		return Source.substring(Source.indexOf(start) + start.length(), Source.indexOf(End));
 	}
 
+    private String getSource(String URL){
+		Log.i("DVB", "StartDownloa d" + URL);
+        Downloader down = new Downloader();
+		Log.i("DVB", "Downloader create " + URL);
+        down.execute(URL);
+		Log.i("DVB", "Downloader started " + URL);
 
-    class DownloadFileFromURL extends AsyncTask<String, String, String> {
-        private String Source;
-
-        public String getSource() {
-            return Source;
-        }
-
-
-        /**
-         * Before starting background thread Show Progress Bar Dialog
-         */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        /**
-         * Downloading file in background thread
-         * http://stackoverflow.com/questions/15758856/android-how-to-download-file-from-webserver
-         */
-        @Override
-        protected String doInBackground(String... f_url) {
-            Source = "";
-            int count;
-            try {
-                URL url = new URL(f_url[0]);
-                URLConnection conection = url.openConnection();
-                conection.connect();
-                // this will be useful so that you can show a tipical 0-100%
-                // progress bar
-                int lenghtOfFile = conection.getContentLength();
-                // download the file
-                InputStream input = new BufferedInputStream(url.openStream(),
-                        8192);
-                byte[] data = new byte[1024];
-                long total = 0;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // writing data to file
-                    Source = Source.concat(new String(data).trim());
-                    data = new byte[1024];
-                }
-
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-            }
-
-            return null;
-        }
-
-        /**
-         * Updating progress bar
-         */
-        protected void onProgressUpdate(String... progress) {
-            // setting progress percentage
-        }
-
-        /**
-         * After completing background task Dismiss the progress dialog
-         **/
-        @Override
-        protected void onPostExecute(String file_url) {
-
-        }
+		Log.i("DVB", "Finished Download" + URL);
+        return down.getSource();
     }
 
+    class Downloader {
+		private String Source;
+		public void execute(String URL){
+			Log.i("LOG", "in DoInBackground DownloadFileFromUrl");
+			Source = "";
+			int count;
+			try {
+				URL url = new URL(URL.replace(" ", "+"));
+				URLConnection conection = url.openConnection();
+				Log.i("LOG", "Download " + URL);
+				conection.connect();
+				Log.i("LOG", "Download COnnected" + URL);
+				// this will be useful so that you can show a tipical 0-100%
+				// progress bar
+				int lenghtOfFile = conection.getContentLength();
+				Log.i("LOG", "Download Size " + Integer.toString(lenghtOfFile));
+				// download the file
+				InputStream input = new BufferedInputStream(url.openStream(),
+						8192);
+				byte[] data = new byte[1024];
+				long total = 0;
+				while ((count = input.read(data)) != -1) {
+					total += count;
+					// writing data to file
+					Source = Source.concat(new String(data).trim());
+					data = new byte[1024];
+				}
+				Log.i("LOG", "Readout " + URL);
 
+			} catch (Exception e) {
+				Log.i("Error: ", e.getMessage());
+			}
 
-    private String getSource(String urlName){
-        String Source = "";
-        DownloadFileFromURL down = new DownloadFileFromURL();
-        try {
-            down.execute(urlName).get();
-            Source = down.getSource();
-        }catch (Exception e){
+		}
 
-        }
-
-        return Source;
-    }
+		public java.lang.String getSource() {
+			return Source;
+		}
+	}
 }

@@ -9,4 +9,14 @@
 
     <string name="brightnessTextView">Brightness</string>
     <string name="volumeTextView">Volume</string>
+
+    <string name="Abfahrtsmonitor">Departure Board</string>
+    <string name="Direction">End Station</string>
+    <string name="Linie">Tram</string>
+    <string name="Abfahrt">Departure in</string>
+    <string name="Abfahrthaltestelle">Start</string>
+    <string name="ZielhalteStelle">Destination</string>
+    <string name="startzeit">Departure</string>
+
+
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
+import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -24,11 +26,21 @@ import de.srh.srha.R;
 import de.srh.srha.communication.DownloadFileFromUrl;
 import de.srh.srha.model.Profile;
 import de.srh.srha.model.ProfileManager;
+import de.srh.srha.model.RouteConnection;
+import de.srh.srha.model.RoutePlan;
+import de.srh.srha.model.RouteStation;
+import de.srh.srha.model.Settings;
+import de.srh.srha.model.dvb;
 
 public class ServiceTab extends Fragment {
+    private TextView startHaltestelle, zielHaltestelle;
+    private ProfileManager manager;
     static DisplayMetrics display;
-    static GridLayout dvb;
-    static Downloader download;
+    private Profile profile;
+    private Settings settings;
+    static private LoadRoute loader;
+    static private dvb routeLoader;
+    private GridLayout grid;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,67 +50,94 @@ public class ServiceTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.servicetab_layout, container, false);
-        TextView tv = (TextView) v.findViewById(R.id.servicestring);
+        manager = new ProfileManager(getActivity().getApplicationContext());
+        profile = manager.getCurrentProfile();
+        settings = profile.settingsManager.getSettings();
 
+
+        routeLoader = new dvb();
+        loader = new LoadRoute();
+        loader.execute("");
+        grid = (GridLayout) v.findViewById(R.id.gridVerb);
         display = this.getResources().getDisplayMetrics();
-        dvb = (GridLayout)v.findViewById(R.id.abfahrtGrid);
-        download = new Downloader();
-        ProfileManager manager = new ProfileManager(getActivity().getApplicationContext());
-        Profile profile = manager.getCurrentProfile();
-        refreshStations(profile.getPreferredArrivalName());
-        tv.setText("Abfahrsmonitor: " + profile.getPreferredDepartureName());
         return v;
 
     }
 
+    class LoadRoute extends AsyncTask<String, String, String>{
 
-    private void addText(String text){
-        TextView txt = new TextView(getContext());
-        txt.setWidth(display.widthPixels / 4);
-        txt.setText(text);
-        dvb.addView(txt, 0);
-    }
+        private RoutePlan route;
+        protected void onPreExecute() {
 
-    public void refreshStations(String station){
-        download.execute("http://widgets.vvo-online.de/abfahrtsmonitor/Abfahrten.do?ort=Dresden&lim=9&hst=" + station);
-    }
+            Log.i("RouteLoader", "OnPreExecute");
+            super.onPreExecute();
 
-    /**************************************************************************************
-     * Help Class for download
-     **************************************************************************************/
-    class Downloader extends DownloadFileFromUrl{
+        }
 
-        /**
-         * After completing background task Dismiss the progress dialog
-         * **/
+        @Override
+        protected String doInBackground(String... params) {
+            Log.i("RouteLoader", "Start in Background");
+            route = routeLoader.getRoute(profile.getPreferredDepartureId(), profile.getPreferredArrivalId());
+
+            return "";
+        }
+
         @Override
         protected void onPostExecute(String file_url) {
-            dvb.removeAllViews();
-            try {
-                Set<String> used = new HashSet<String>();
-                JSONArray arrayJson = new JSONArray(Source);
+            Log.i("RouteLoader", "Route found");
+            RouteConnection[] r = route.getConnections();
+            Log.i("RouteLoader", "Lenth of Route" + Integer.toString(r.length));
 
-                for (int i = arrayJson.length()-1; i >= 0 ; --i) {
+            for(int i=r.length-1; i>= 0; --i){
+                Log.i("RouteLoader", Integer.toString(i) + " : " + r[i].getStartStation() + " -> " +
+                        r[i].getZielStation() + " Zeit: " + r[i].getZeit() + " Tram " + r[i].getLinie());
+                addText(r[i].getStartStation(), r[i].getZielStation(), r[i].getZeit(), r[i].getLinie());
 
-                    JSONArray obj = arrayJson.getJSONArray(i);
-                    if (!used.contains(obj.get(1))) {
-                        addText(obj.getString(2));
-                        addText(obj.getString(1));
-                        addText(obj.getString(0));
-                        used.add(obj.getString(1));
-                    }
-
-                }
-                addText("Wartezeit");
-                addText("Richtung");
-                addText("Linie");
-
-            } catch (Exception e){
-                addText(e.getMessage());
             }
+            //*/
+
+
+            addText(getString(R.string.Abfahrthaltestelle), getString(R.string.ZielhalteStelle), getString(R.string.startzeit), getString(R.string.Linie));
+        }
+
+        private void addText(String haltestelleStart, String haltestelleZiel, String Abfahrtszeit,
+                             String AbfahrtLinie){
+            TextView txtAbfahrtLinie = new TextView(getContext());
+            TextView txtHaltestelleStart = new TextView(getContext());
+            TextView txtHaltestelleZiel = new TextView(getContext());
+            TextView txtAbfahrtZeit= new TextView(getContext());
+
+
+
+
+            //txtAbfahrtLinie.setGravity(Gravity.LEFT);
+            txtAbfahrtLinie.setWidth(display.widthPixels / 4);
+            txtAbfahrtLinie.setText(AbfahrtLinie);
+     //       txtAbfahrtLinie.setHighlightColor(0);
+
+           // txtAbfahrtZeit.setGravity(Gravity.LEFT);
+            txtAbfahrtZeit.setWidth(display.widthPixels / 4);
+            txtAbfahrtZeit.setText(Abfahrtszeit);
+      //      txtAbfahrtLinie.setHighlightColor(255);
+
+           // txtHaltestelleZiel.setGravity(Gravity.LEFT);
+            txtHaltestelleZiel.setWidth(display.widthPixels / 4);
+            txtHaltestelleZiel.setText(haltestelleZiel);
+     //       txtAbfahrtLinie.setHighlightColor(65000);
+
+           // txtHaltestelleStart.setGravity(Gravity.LEFT);
+            txtHaltestelleStart.setWidth(display.widthPixels / 4);
+            txtHaltestelleStart.setText(haltestelleStart);
+     //       txtAbfahrtLinie.setHighlightColor(12700000);
+
+            grid.addView(txtHaltestelleZiel, 0);
+            grid.addView(txtAbfahrtZeit, 0);
+            grid.addView(txtAbfahrtLinie, 0);
+            grid.addView(txtHaltestelleStart, 0);
 
 
         }
 
     }
+
 }

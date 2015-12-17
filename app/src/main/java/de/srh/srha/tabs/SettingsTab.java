@@ -48,7 +48,7 @@ import de.srh.srha.model.dvb;
 import android.widget.Filter;
 
 public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedListener {
-
+    private boolean inUseDownloader=false;
     private Settings settings;
     private Profile profile;
     private ProfileManager manager;
@@ -132,7 +132,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                 Log.i("LOG",
                         "Filter Departure:" + constraint + " thread: " + Thread.currentThread());
                 if (constraint != null) {
-                    Log.i("LOg", "doing a search FIlter Departure..");
+                    Log.i("LOG", "doing a search FIlter Departure..");
                     new AdapterUpdaterTaskDeparture().execute();
                 }
                 return null;
@@ -378,7 +378,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
          * **/
         @Override
         protected void onPostExecute(String file_url) {
-
+            inUseDownloader=false;
         }
     }
 
@@ -396,7 +396,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             super.onPreExecute();
             String buffer = preferredDeparture.getText().toString();
             if(buffer.length() >= 3) {
-                downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+                if(downloader.isFinished() || downloader.getStatus() == AsyncTask.Status.PENDING){
+                        downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+                } else {
+                    downloader.cancel(true);
+                    downloader = new Downloader();
+                    downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+
+                }
             }else {
                 cancel(true);
             }
@@ -405,7 +412,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         @Override
         protected String doInBackground(String... hst) {
             Log.i("LOG", "AdapterUpdaterTaskDeparture DoInBackGround");
-            while(!downloader.isFinished()){
+            while(!downloader.isFinished() && !downloader.isCancelled()){
 
             }
             return "";
@@ -445,7 +452,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             super.onPreExecute();
             String buffer = preferredArrival.getText().toString();
             if(buffer.length() >= 3) {
-                downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+                if(downloader.isFinished() || downloader.getStatus() == AsyncTask.Status.PENDING){
+                    downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+                } else {
+                    downloader.cancel(true);
+                    downloader = new Downloader();
+                    downloader.execute("https://www.dvb.de/apps/pointfinder/index?query=".concat(buffer));
+                }
+
             }else {
                 cancel(true);
             }
@@ -454,7 +468,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         @Override
         protected String doInBackground(String... hst) {
             Log.i("LOG", "In Background Adapter Arrival");
-            while(!downloader.isFinished()){
+            while(!downloader.isFinished() && !downloader.isCancelled()){
 
             }
             Log.i("LOG", "Finished Download");

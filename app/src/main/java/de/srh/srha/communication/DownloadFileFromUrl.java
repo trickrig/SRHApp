@@ -31,8 +31,9 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
     @Override
     protected void onPreExecute() {
         Log.i("LOG", "Download Pre");
-        super.onPreExecute();
+       // super.onPreExecute();
         finished = false;
+        Log.i("LOG", "Download Pre finished");
     }
 
     /**
@@ -41,10 +42,11 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
      * */
     @Override
     protected String doInBackground(String... f_url) {
+        Log.i("LOG", "in DoInBackground DownloadFileFromUrl");
         Source = "";
         int count;
         try {
-            URL url = new URL(f_url[0]);
+            URL url = new URL(f_url[0].replace(" ", "+"));
             URLConnection conection = url.openConnection();
             Log.i("LOG", "Download " + f_url[0]);
             conection.connect();
@@ -52,6 +54,7 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
             // this will be useful so that you can show a tipical 0-100%
             // progress bar
             int lenghtOfFile = conection.getContentLength();
+            Log.i("LOG", "Download Size " + Integer.toString(lenghtOfFile));
             // download the file
             InputStream input = new BufferedInputStream(url.openStream(),
                     8192);
@@ -90,6 +93,10 @@ public class DownloadFileFromUrl extends AsyncTask<String, String, String> {
     protected void onPostExecute(String file_url) {
         Log.i("LOG", "Download finished");
         finished = true;
+    }
+
+    protected  void onChanceled(String url){
+        Log.i("LOG", "Download cannceled " + url);
     }
 
 }
