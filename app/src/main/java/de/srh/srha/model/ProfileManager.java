@@ -18,12 +18,12 @@ import android.widget.Toast;
 
 import java.util.LinkedList;
 
+import de.srh.srha.MainActivity;
 import de.srh.srha.R;
 import de.srh.srha.database.ProfileDbHelper;
 import de.srh.srha.receivers.WifiExpirator;
 
 public class ProfileManager {
-
 
     private LinkedList<Profile> profiles;
 
@@ -32,8 +32,7 @@ public class ProfileManager {
     public static final String prefsFile = "SRHA-prefs";
     public static final String currProfilePrefsKey = "currentProfile";
     public static final String defaultProfileName = "<default>";
-    public static int wifiExpirationTimeSeconds = 30;
-    public static final String timerName = "wifiExpirationTimer";
+    public static int wifiExpirationTimeSeconds = 30 * 60;
 
     public ProfileManager(Context context) {
         this.activityContext = context;
@@ -63,9 +62,13 @@ public class ProfileManager {
             long updated = updateProfileInPersistance(profile);
             profile.settingsManager = new SettingsManager(profile, this.activityContext, settings); // stores settings
             this.profiles.add(profile);
-            //Toast.makeText(this.activityContext, updated + " profiles updated", Toast.LENGTH_SHORT).show();
 
-            onConnectivityChange(profile.getAssociatedWifi());
+            // if we are in the wifi for which we have changed the settings, directly apply i
+            WifiManager wifiManager = (WifiManager) this.activityContext.getSystemService(Context.WIFI_SERVICE);
+            WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+            if (wifiInfo.getSSID().equals(profile.getAssociatedWifi())) {
+                onConnectivityChange(profile.getAssociatedWifi());
+            }
         }
         else {
             storeProfileInPersistance(profile);
@@ -123,6 +126,10 @@ public class ProfileManager {
             deleteCurrentProfile();
             deleteProfileInPersistance(resetProfile);
             resetProfile.setProfile();
+            // Cancel all notifications, there is no active profile
+            NotificationManager myNM = (NotificationManager)
+                    activityContext.getSystemService(activityContext.NOTIFICATION_SERVICE);
+            myNM.cancelAll();
             Toast.makeText(ProfileManager.this.activityContext,
                     "SRHA: profile expired (no wi-fi connectivity)", Toast.LENGTH_SHORT).show();
         }
@@ -202,27 +209,33 @@ public class ProfileManager {
 
     private void showProfileSetNotification(Profile profile) {
         // In this sample, we'll use the same text for the ticker and the expanded notification
-        CharSequence title = "Profile " + profile.getProfileName() + " set";
-        CharSequence text = "Tap to see profile settings (unimplemented)";
+        CharSequence title = "SRHA: Profile \"" + profile.getProfileName() + "\" set";
+        CharSequence text = "Tap to see profile settings";
+
+        Intent reviewIntent = new Intent(this.activityContext, MainActivity.class);
+        reviewIntent.putExtra("de.srh.srha.showSettings", true);
+        PendingIntent piReview = PendingIntent.getActivity(this.activityContext, 0, reviewIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Set the info for the views that show in the notification panel.
-        Notification notification = new Notification.Builder(activityContext)
+        Notification.Builder notificationBuilder = new Notification.Builder(activityContext)
                 // icon is important: http://stackoverflow.com/questions/16045722
                 //.setSmallIcon(R.drawable.icon)  // the status icon
                 .setSmallIcon(android.R.drawable.stat_notify_more)
-                .setTicker(title)  // the status text
+                //.setTicker(title)  // the status text
                 .setWhen(System.currentTimeMillis())  // the time stamp
-                .setContentTitle(activityContext.getText(R.string.app_name))  // the label of the entry
+                .setContentTitle(title)  // the label of the entry
                 .setContentText(text)  // the contents of the entry
                         // set this to the activity with these profile settings
-                        //.setContentIntent(contentIntent)  // The intent to send when the entry is clicked
-                .build();
+                .setContentIntent(piReview)  // The intent to send when the entry is clicked
+                .setAutoCancel(true)
+                ;
 
         // Send the notification.
         NotificationManager myNM = (NotificationManager)
                 activityContext.getSystemService(activityContext.NOTIFICATION_SERVICE);
 
-        myNM.notify(R.string.app_name, notification);
+        myNM.notify(R.string.app_name, notificationBuilder.build());
     }
 
     private LinkedList<Profile> loadProfilesFromPersistance() {

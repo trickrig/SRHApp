@@ -30,5 +30,8 @@ public class MainActivity extends FragmentActivity {
         mTabHost.addTab(
                 mTabHost.newTabSpec("setting").setIndicator("Settings", null),
                 SettingsTab.class, null);
+
+        boolean showSettings = getIntent().getBooleanExtra("de.srh.srha.showSettings", false);
+        if (showSettings) { mTabHost.setCurrentTab(2); }
     }
 }
