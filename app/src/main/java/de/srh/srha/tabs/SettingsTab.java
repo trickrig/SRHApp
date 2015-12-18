@@ -276,7 +276,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
 
                 preferredArrival.setText("");
                 preferredDeparture.setText("");
-                Toast.makeText(getActivity(), "Updated Profile " + selectedSpinnerItem, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Updated Profile " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -358,7 +358,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             createProfilButton.setText("Create Profile");
 
         } else {
-            Toast.makeText(getActivity(), "Loaded Profile: " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Loaded Profile: " + p.getProfileName(), Toast.LENGTH_SHORT).show();
             profile = p;
             createProfilButton.setText("Update Profile");
         }
