@@ -30,7 +30,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:id="@+id/wifiSwitch"
         android:layout_below="@+id/profilNameEditText"
@@ -39,7 +39,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:id="@+id/bluetoothSwitch"
         android:layout_below="@+id/wifiSwitch"
@@ -48,7 +48,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:id="@+id/gpsSwitch"
         android:layout_below="@id/bluetoothSwitch"
@@ -57,7 +57,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:id="@+id/mobileSwitch"
         android:layout_toRightOf="@id/wifiSwitch"
@@ -67,7 +67,7 @@
         android:layout_marginLeft="20dp"/>
 
     <Switch
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:id="@+id/vibrationSwitch"
         android:layout_toRightOf="@id/bluetoothSwitch"
@@ -126,15 +126,17 @@
         android:id="@+id/zielhaltEditText"
         android:layout_below="@+id/zielhaltTextView"
         android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginLeft="20dp" />
 
     <Button
-        android:layout_below="@+id/zielhaltEditText"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:id="@+id/createProfilButton"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
-        android:layout_alignParentBottom="true"/>
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

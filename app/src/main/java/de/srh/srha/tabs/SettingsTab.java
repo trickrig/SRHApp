@@ -276,7 +276,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
 
                 preferredArrival.setText("");
                 preferredDeparture.setText("");
-                profilName.setText("");
+                Toast.makeText(getActivity(), "Updated Profile " + selectedSpinnerItem, Toast.LENGTH_SHORT).show();
             }
         });
 
