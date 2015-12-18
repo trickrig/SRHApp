@@ -22,10 +22,10 @@ public class MainActivity extends FragmentActivity {
         mTabHost.setup(this, getSupportFragmentManager(), android.R.id.tabcontent);
 
         mTabHost.addTab(
-                mTabHost.newTabSpec("start").setIndicator("Startbildschirm", null),
+                mTabHost.newTabSpec("start").setIndicator("Start", null),
                 StartTab.class, null);
         mTabHost.addTab(
-                mTabHost.newTabSpec("service").setIndicator("Verbindungen", null),
+                mTabHost.newTabSpec("service").setIndicator("Service", null),
                 ServiceTab.class, null);
         mTabHost.addTab(
                 mTabHost.newTabSpec("setting").setIndicator("Settings", null),
