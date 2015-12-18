@@ -58,10 +58,7 @@ public class ServiceTab extends Fragment {
 
         routeLoader = new dvb();
         AsyncTaskPool.execute(new LoadRoute());
-        startHaltestelle = (TextView) v.findViewById(R.id.textStart);
-        zielHaltestelle = (TextView) v.findViewById(R.id.textZiel);
-        startHaltestelle.setText(profile.getPreferredArrivalName());
-        zielHaltestelle.setText(profile.getPreferredDepartureName());
+
         grid = (GridLayout) v.findViewById(R.id.gridVerb);
         display = this.getResources().getDisplayMetrics();
         return v;
@@ -115,7 +112,7 @@ public class ServiceTab extends Fragment {
 
 
             //txtAbfahrtLinie.setGravity(Gravity.LEFT);
-            txtAbfahrtLinie.setWidth(display.widthPixels / 4);
+            txtAbfahrtLinie.setWidth(display.widthPixels / 6);
             txtAbfahrtLinie.setText(AbfahrtLinie);
      //       txtAbfahrtLinie.setHighlightColor(0);
 
@@ -130,7 +127,7 @@ public class ServiceTab extends Fragment {
      //       txtAbfahrtLinie.setHighlightColor(65000);
 
            // txtHaltestelleStart.setGravity(Gravity.LEFT);
-            txtHaltestelleStart.setWidth(display.widthPixels / 4);
+            txtHaltestelleStart.setWidth(display.widthPixels / 3);
             txtHaltestelleStart.setText(haltestelleStart);
      //       txtAbfahrtLinie.setHighlightColor(12700000);
 
