@@ -11,6 +11,11 @@ public class Profile {
 
     public SettingsManager settingsManager;
 
+    public String toString(){
+        String result = "Name: " + name + " AssociatedWifi " + associatedWifi + " Arravial "
+                + preferredArrivalName + " Departure " + preferredDepartureName;
+        return result;
+    }
     public Profile(String name, String associatedWifi, String preferredDepartureId,
                    String preferredDepartureName, String preferredArrivalId,
                    String preferredArrivalName) {

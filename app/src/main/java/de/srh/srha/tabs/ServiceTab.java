@@ -61,6 +61,7 @@ public class ServiceTab extends Fragment {
 
         grid = (GridLayout) v.findViewById(R.id.gridVerb);
         display = this.getResources().getDisplayMetrics();
+        Log.i("Profil", "ServiceTab: " + profile.toString());
         return v;
 
     }

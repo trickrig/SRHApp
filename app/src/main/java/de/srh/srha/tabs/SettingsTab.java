@@ -56,7 +56,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
     private Filter filterDeparture, filterArrival;
     private Switch wifiSwitch,bluetoothSwitch, gpsSwitch, mobileSwitch, vibrationSwitch;
     private SeekBar volumeSeekBar;
-    private TextView volumeTextView, profilNameTextView;
+    private TextView volumeTextView;
     private EditText  profilName;
     private AutoCompleteTextView preferredDeparture, preferredArrival;
     private Button createProfilButton;
@@ -93,6 +93,8 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         preferredDeparture = (AutoCompleteTextView) v.findViewById(R.id.starthaltEditText);
         preferredArrival.setThreshold(3);
         preferredDeparture.setThreshold(3);
+        preferredArrival.setText(profile.getPreferredArrivalName());
+        preferredDeparture.setText(profile.getPreferredDepartureName());
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
 
         volumeSeekBar = (SeekBar) v.findViewById(R.id.volumeSeekBar);
@@ -100,7 +102,6 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         volumeSeekBar.setMax(maxVolume);
 
         volumeTextView = (TextView) v.findViewById(R.id.volumeTextView);
-        profilNameTextView = (TextView) v.findViewById(R.id.profilNameTextView);
 
         createProfilButton = (Button) v.findViewById(R.id.createProfilButton);
 
@@ -228,6 +229,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
+
         vibrationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -274,12 +276,14 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
                 profile.addWifi(selectedSpinnerItem);
                 manager.updateProfile(profile, settings);
 
+
                 preferredArrival.setText("");
                 preferredDeparture.setText("");
                 Toast.makeText(getActivity(), "Updated Profile " + profile.getProfileName(), Toast.LENGTH_SHORT).show();
             }
         });
 
+        Log.i("Profil", "SettingsTab: " + profile.toString());
         return v;
     }
 
@@ -321,6 +325,7 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
         volumeSeekBar.setProgress(settings.getRingVolume());
 
         profilName.setText(profile.getProfileName(), TextView.BufferType.EDITABLE);
+
     }
 
     public void fillConfiguredNetworksSpinner() {

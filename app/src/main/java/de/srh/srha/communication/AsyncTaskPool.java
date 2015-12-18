@@ -7,7 +7,7 @@ import android.os.Build;
 /**
  * Created by fettpet on 17.12.15.
  */
-
+// http://stackoverflow.com/questions/18357641/is-it-possible-to-run-two-asynctask-in-same-time
 public class AsyncTaskPool {
     public static <P, T extends AsyncTask<P, ?, ?>> void execute(T task) {
         execute(task, (P[]) null);

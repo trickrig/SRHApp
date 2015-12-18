@@ -60,6 +60,7 @@ public class StartTab extends Fragment {
         refreshStations(profile.getPreferredDepartureName());
         TextView tv = (TextView) v.findViewById(R.id.textHaltestelle);
         tv.setText(getString(R.string.Abfahrtsmonitor) + ": " + profile.getPreferredDepartureName());
+        Log.i("Profil", "Starttab: " + profile.toString());
         return v;
     }
 
@@ -126,11 +127,10 @@ public class StartTab extends Fragment {
                 for (int i = arrayJson.length()-1; i >= 0 ; --i) {
 
                     JSONArray obj = arrayJson.getJSONArray(i);
-                    if (!used.contains(obj.get(1))) {
+
                         //addText(obj.getString(0), obj.getString(2), obj.getString(1) );
-                        addText(obj.getString(1), obj.getString(0), obj.getString(2) );
-                        used.add(obj.getString(1));
-                    }
+                    addText(obj.getString(1), obj.getString(0), obj.getString(2) );
+
 
                 }
 

@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.LinkedList;
@@ -87,6 +88,7 @@ public class ProfileManager {
     }
 
     public Profile getCurrentProfile() {
+        Log.i("ProfilManager", this.currProfilePrefsKey);
         Profile profile = readCurrentProfile();
         if (profile == null) {
             profile = getDefaultProfile();
@@ -177,7 +179,11 @@ public class ProfileManager {
         String currentProfile = settings.getString(this.currProfilePrefsKey, null);
 
         if (currentProfile != null) {
+            Log.i("ProfilManager", "CurrentProfil " + currentProfile);
+            Log.i("ProfilManager", "ProfilSettings " + getProfileByName(currentProfile).toString() );
             return getProfileByName(currentProfile);
+        } else{
+            Log.i("ProfilManager", "Load Default Profil");
         }
         return null;
     }
