@@ -91,10 +91,8 @@ public class SettingsTab extends Fragment implements AdapterView.OnItemSelectedL
 
         preferredArrival = (AutoCompleteTextView) v.findViewById(R.id.zielhaltEditText);
         preferredDeparture = (AutoCompleteTextView) v.findViewById(R.id.starthaltEditText);
-        preferredArrival.setThreshold(3);
-        preferredDeparture.setThreshold(3);
-        preferredArrival.setText(profile.getPreferredArrivalName());
-        preferredDeparture.setText(profile.getPreferredDepartureName());
+        //preferredArrival.setThreshold(3);
+        //  preferredDeparture.setThreshold(3);
         profilName = (EditText) v.findViewById(R.id.profilNameEditText);
 
         volumeSeekBar = (SeekBar) v.findViewById(R.id.volumeSeekBar);
